@@ -1,0 +1,152 @@
+{% extends 'typerek/base.html' %}
+{% load static %}
+{% load crispy_forms_tags %}
+
+{% block header %}
+<header class="masthead bg-primary text-white text-center">
+            <div class="container d-flex align-items-center flex-column">
+                <div class="row justify-content-center">
+
+                    <div class="col-lg-3 "><h2 class="page-section-heading text-right text-uppercase mb-3">{{match.team_home_name}}  </div> </h2>
+                    <div class="col-lg-3 "><h2 class="page-section-heading text-right text-uppercase mb-3">{{match.team_away_name}}  </div></h2>
+                    <div></div>
+                    <div class="col-lg-3 "><h2 class="page-section-heading text-right text-uppercase mb-3">{{match.team_home_score}}  </div> </h2>
+                    <div class="col-lg-3 "><h2 class="page-section-heading text-right text-uppercase mb-3">{{match.team_away_score}}  </div></h2>
+                    <h4 class="page-section-heading text-center text-uppercase mb-1">{{match.extra_bet_name}} {{match.extra_bet_result}}</h4>
+
+                    <div class="divider-custom">
+                    <div class="divider-custom-line"></div>
+                    <div class="divider-custom-icon" ><i class="fas fa-star"></i></div>
+                    <div class="divider-custom-line"></div>
+                </div>
+
+                    <div class="row">
+                        <p> Twój typ </p>
+
+                    <div class=" ms-auto"><p class="lead"> {{match.team_home_name}} {{bet.team_home_score}} - {{bet.team_away_score}} {{match.team_away_name}} // Extra bet: {{bet.extra_bet}} // Żetony pewniaczki: {{bet.joker}}</p></div>
+
+                </div>
+
+                     </div>
+            </div>
+        </header>
+
+{% endblock %}
+
+
+
+{% block content %}
+
+        <section class="page-section portfolio" id="portfolio">
+            <div class="container">
+
+                {% if match.date|date:"Y-m-d" >= now|date:"Y-m-d" %}
+
+<form method="POST" class="post-form">{% csrf_token %}
+
+        <div class="controls">
+            <div class="row">
+                <div class="col-sm-3">
+                    <div class="form-group">
+                        <label for="form_home_name">{{match.team_home_name}} *</label>
+                        {{ form.team_home_score|as_crispy_field }}
+                        <div class="help-block with-errors"></div>
+                    </div>
+                </div>
+                <div class="col-sm-3">
+                    <div class="form-group">
+                        <label for="form_away_name">{{match.team_away_name}} *</label>
+                        {{ form.team_away_score|as_crispy_field }}
+                        <div class="help-block with-errors"></div>
+                    </div>
+                </div>
+                <div class="col-sm-3">
+                    <div class="form-group">
+                        <label for="form_extra_bet_name">{{match.extra_bet_name}}</label>
+                        {{ form.extra_bet|as_crispy_field }}
+                        <div class="help-block with-errors"></div>
+                    </div>
+                </div>
+                <div class="col-sm-3">
+                    <div class="form-group">
+                        <label for="form_joker">Joker *</label>
+                        {{ form.joker|as_crispy_field }}
+                        <div class="help-block with-errors"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <br>
+        <div class="col-md-12 text-center">
+        <button type="submit" class="btn btn-primary btn-lg">Zapisz</button>
+        </div>
+
+    </form>
+                {% else %}
+
+                 <div class=" ms-auto text-center"><p class="lead">
+
+                Obstawianie zakończone!
+
+                 </p> </div>
+
+
+                {% endif %}
+
+                  </div>
+        </section>
+
+{% endblock %}
+
+{% block footer %}
+
+                <footer class="footer text-center">
+            <div class="container">
+
+                <div class="container">
+                <h2 class="page-section-heading text-center text-uppercase text-white">Punkty</h2>
+                <div class="divider-custom divider-light">
+                    <div class="divider-custom-line"></div>
+                    <div class="divider-custom-icon"><i class="fas fa-star"></i></div>
+                    <div class="divider-custom-line"></div>
+                </div>
+                         </div>
+
+<div class="table-responsive">
+                    <table class="table table-bordered text-white">
+  <thead>
+    <tr>
+      <th>BramkiGosp</th>
+      <th>BramkiGość</th>
+      <th>BramkiSuma</th>
+      <th>Rezultat</th>
+        <th>Extra Bet</th>
+      <th>Mnożnik</th>
+      <th>Joker</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+
+        <td>{{bet.p_home_score}}</td>
+      <td>{{bet.p_away_score}}</td>
+      <td>{{bet.p_sum_goals}}</td>
+        <td>{{bet.p_result}}</td>
+        <td>{{bet.p_extra_bet}}</td>
+      <td>{{bet.multiplier}}</td>
+      <td>{{bet.p_joker}}</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+<br>
+
+<div class="container">
+                <h2 class="page-section-heading text-center text-uppercase text-white">Suma: {{bet.total}}</h2>
+                         </div>
+
+            </div>
+        </footer>
+
+{% endblock %}

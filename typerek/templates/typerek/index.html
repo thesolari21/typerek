@@ -1,0 +1,96 @@
+{% extends 'typerek/base.html' %}
+{% load static %}
+
+
+{% block header %}
+
+<!-- Masthead-->
+        <header class="masthead bg-primary text-white text-center">
+            <div class="container d-flex align-items-center flex-column">
+                <h3 class="masthead-heading text-uppercase mb-0">Witaj w typerku </h3>
+                <!-- Icon Divider-->
+                <div class="divider-custom divider-light">
+                    <div class="divider-custom-line"></div>
+                    <div class="divider-custom-icon"><i class="fas fa-star"></i></div>
+                    <div class="divider-custom-line"></div>
+                </div>
+                <!-- Masthead Subheading-->
+                <p class="masthead-subheading font-weight-light mb-0">Najbardziej ryzykowną rzeczą w futbolu jest brak podjęcia jakiegokolwiek ryzyka.</p>
+            </div>
+        </header>
+
+{% endblock %}
+
+
+{% block content %}
+
+        <section class="page-section portfolio" id="portfolio">
+            <div class="container">
+
+                <h2 class="page-section-heading text-center text-uppercase text-secondary mb-0">Nadchodzące spotkania</h2>
+                <!-- Icon Divider-->
+                <div class="divider-custom">
+                    <div class="divider-custom-line"></div>
+                    <div class="divider-custom-icon"><i class="fas fa-star"></i></div>
+                    <div class="divider-custom-line"></div>
+                </div>
+
+               <table class="table table-hover">
+  <thead>
+    <tr>
+      <th scope="col">Data</th>
+      <th scope="col">Mecz</th>
+      <th scope="col">Liga</th>
+    </tr>
+  </thead>
+  <tbody>
+
+   {% for match in matches %}
+
+   {% if match.multiplier > 1 %}
+   <tr class="table-danger">
+   {% else %}
+    <tr>
+       {% endif %}
+
+        <td>{{match.date}}</td>
+      <td><a href="{% url 'match_detail' pk=match.pk lg=match.league %}">{{match}}</a></td>
+      <td>{{match.league}}</td>
+    </tr>
+    {% endfor %}
+
+  </tbody>
+</table>
+
+                            </div>
+        </section>
+
+
+{% endblock %}
+
+
+
+
+{% block footer %}
+<footer class="footer text-center">
+            <div class="container">
+                <h2 class="page-section-heading text-center text-uppercase text-white">Twoje ligi</h2>
+                <!-- Icon Divider-->
+                <div class="divider-custom divider-light">
+                    <div class="divider-custom-line"></div>
+                    <div class="divider-custom-icon"><i class="fas fa-star"></i></div>
+                    <div class="divider-custom-line"></div>
+                </div>
+                <!-- About Section Content-->
+                <div class="row">
+
+                    {% for userleague in usersleagues %}
+                    <div class="col ms-auto  "><a href="{% url 'league' lg=userleague.league %}">{{match}}{{userleague.league}}</a><p class="lead"></p></div>
+                    {% endfor %}
+
+                </div>
+
+                         </div>
+        </footer>
+
+{% endblock %}
