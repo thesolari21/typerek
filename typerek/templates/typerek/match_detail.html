@@ -7,11 +7,11 @@
             <div class="container d-flex align-items-center flex-column">
                 <div class="row justify-content-center">
 
-                    <div class="col-lg-3 "><h2 class="page-section-heading text-right text-uppercase mb-3">{{match.team_home_name}}  </div> </h2>
-                    <div class="col-lg-3 "><h2 class="page-section-heading text-right text-uppercase mb-3">{{match.team_away_name}}  </div></h2>
+                    <div class="col-lg-3 "><h2 class="page-section-heading text-right text-uppercase mb-3">{{match.team_home_name}}  </h2></div>
+                    <div class="col-lg-3 "><h2 class="page-section-heading text-right text-uppercase mb-3">{{match.team_away_name}}  </h2></div>
                     <div></div>
-                    <div class="col-lg-3 "><h2 class="page-section-heading text-right text-uppercase mb-3">{{match.team_home_score}}  </div> </h2>
-                    <div class="col-lg-3 "><h2 class="page-section-heading text-right text-uppercase mb-3">{{match.team_away_score}}  </div></h2>
+                    <div class="col-lg-3 "><h2 class="page-section-heading text-right text-uppercase mb-3">{{match.team_home_score}}  </h2></div>
+                    <div class="col-lg-3 "><h2 class="page-section-heading text-right text-uppercase mb-3">{{match.team_away_score}}  </h2></div>
                     <h4 class="page-section-heading text-center text-uppercase mb-1">{{match.extra_bet_name}} {{match.extra_bet_result}}</h4>
 
                     <div class="divider-custom">
@@ -21,9 +21,9 @@
                 </div>
 
                     <div class="row">
-                        <p> Twój typ </p>
+                        <p><h5> Twój typ </h5></p>
 
-                    <div class=" ms-auto"><p class="lead"> {{match.team_home_name}} {{bet.team_home_score}} - {{bet.team_away_score}} {{match.team_away_name}} // Extra bet: {{bet.extra_bet}} // Żetony pewniaczki: {{bet.joker}}</p></div>
+                        <div class="ms-auto" ><p class="lead"><mark> {{match.team_home_name}} {{bet.team_home_score}} - {{bet.team_away_score}} {{match.team_away_name}} // Extra bet: {{bet.extra_bet}} // Żetony pewniaczki: {{bet.joker}}</mark></p></div>
 
                 </div>
 
@@ -40,7 +40,7 @@
         <section class="page-section portfolio" id="portfolio">
             <div class="container">
 
-                {% if match.date|date:"Y-m-d" >= now|date:"Y-m-d" %}
+                {% if can_bet  %}
 
 <form method="POST" class="post-form">{% csrf_token %}
 
@@ -69,7 +69,7 @@
                 </div>
                 <div class="col-sm-3">
                     <div class="form-group">
-                        <label for="form_joker">Joker *</label>
+                        <label for="form_joker">Pewniaczek *</label>
                         {{ form.joker|as_crispy_field }}
                         <div class="help-block with-errors"></div>
                     </div>
@@ -87,7 +87,7 @@
 
                  <div class=" ms-auto text-center"><p class="lead">
 
-                Obstawianie zakończone!
+                     Obstawianie zakończone! Możesz dokonać zmian <u> najpóźniej dzień przed </u>rozpoczęciem meczu.
 
                  </p> </div>
 

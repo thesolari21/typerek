@@ -7,6 +7,7 @@ from .forms import BetForm
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect
 from django.contrib import auth
+from django.db.models import Sum
 import datetime
 
 from django.contrib.auth.models import User
@@ -72,11 +73,35 @@ def match_detail(request, pk, lg):
     else:
         form = BetForm(instance=bet)
 
-    return render(request, 'typerek/match_detail.html', {'match':match , 'bet':bet, 'form': form} )
+    if match.date > datetime.date.today():
+        can_bet = True
+    else:
+        can_bet = False
+
+    return render(request, 'typerek/match_detail.html', {'match':match , 'bet':bet, 'form': form, 'can_bet':can_bet} )
 
 
 def league(request, lg):
 
-    league = UsersLeagues.objects.all()
+    matches = Matches.objects.select_related('league').filter(league__name=lg).values('id')
 
-    return render(request, 'typerek/league.html', {'league': league})
+    league_overall = Bets.objects.select_related('user').values('user__username').filter(match_id__in=matches.values('pk')).annotate(
+                                                          sum_sum_goals=Sum('p_sum_goals') + Sum('p_away_score') + Sum('p_home_score') ,
+                                                          sum_result=Sum('p_result'),
+                                                          sum_extra_bet=Sum('p_extra_bet'),
+                                                          sum_joker=Sum('p_joker'),
+                                                          sum_total=Sum('total')).order_by('-sum_total')
+
+    matches_overall = Bets.objects.select_related('match_id').filter(match_id__in=matches.values('pk')).filter(user=User.objects.get(id=request.user.id))\
+        .values('match_id',
+                'match_id__team_home_name',
+                'match_id__team_away_name',
+                'match_id__team_home_score',
+                'match_id__team_away_score',
+                'match_id__league',
+                'team_home_score',
+                'team_away_score',
+                'status',
+                'total').order_by('match_id__date')
+
+    return render(request, 'typerek/league.html', {'league_overall': league_overall, 'matches_overall':matches_overall , 'lg':lg})

@@ -2,17 +2,109 @@
 {% load static %}
 
 {% block header %}
-
 <header class="masthead bg-primary text-white text-center">
             <div class="container d-flex align-items-center flex-column">
-                <p class="masthead-subheading font-weight-light mb-0">MOJA LIGA {{league}}</p>
+                <h4 class="masthead-heading text-uppercase mb-0">{{lg}} </h4>
             </div>
         </header>
-
 {% endblock %}
 
 {% block content %}
+
+
+        <section class="page-section portfolio" id="portfolio">
+            <br>
+            <div class="container">
+
+                <h2 class="page-section-heading text-center text-uppercase text-secondary mb-0">Klasyfikacja generalna</h2>
+                <!-- Icon Divider-->
+                <div class="divider-custom">
+                    <div class="divider-custom-line"></div>
+                    <div class="divider-custom-icon"><i class="fas fa-star"></i></div>
+                    <div class="divider-custom-line"></div>
+                </div>
+
+               <table class="table table-hover">
+  <thead>
+    <tr>
+        <th scope="col">Gracz</th>
+      <th scope="col">Punkty bramki</th>
+        <th scope="col">Punkty zwycięzca</th>
+        <th scope="col">Punkty ExtraBet</th>
+        <th scope="col">Punkty pewniaczki</th>
+        <th scope="col">Suma</th>
+    </tr>
+  </thead>
+  <tbody>
+
+   {% for player in league_overall %}
+
+    <tr>
+
+        <td>{{player.user__username}}</td>
+           <td>{{player.sum_sum_goals}}</td>
+           <td>{{player.sum_result}}</td>
+           <td>{{player.sum_extra_bet}}</td>
+           <td>{{player.sum_joker}}</td>
+           <td>{{player.sum_total}}</td>
+    </tr>
+    {% endfor %}
+
+  </tbody>
+</table>
+
+                            </div>
+        </section>
+
+
+
 {% endblock %}
 
 {% block footer %}
+
+<footer class="footer text-center">
+            <div class="container">
+                <h2 class="page-section-heading text-center text-uppercase text-white">Twoje mecze w lidze</h2>
+                <!-- Icon Divider-->
+                <div class="divider-custom divider-light">
+                    <div class="divider-custom-line"></div>
+                    <div class="divider-custom-icon"><i class="fas fa-star"></i></div>
+                    <div class="divider-custom-line"></div>
+                </div>
+
+
+                <table class="table table-bordered text-white ">
+  <thead>
+    <tr>
+      <th scope="col">ID</th>
+      <th scope="col">Mecz</th>
+      <th scope="col">Wynik końcowy</th>
+      <th scope="col">Twój typ</th>
+        <th scope="col">Punkty</th>
+        <th scope="col">Status</th>
+    </tr>
+  </thead>
+  <tbody>
+
+  {% for match in matches_overall %}
+
+    <tr>
+      <td>{{match.match_id}}</td>
+        <td><a href="{% url 'match_detail' pk=match.match_id lg=match.match_id__league %}" style="color:white;">{{match.match_id__team_home_name}} - {{match.match_id__team_away_name}}</a></td>
+        <td>{{match.match_id__team_home_score}} - {{match.match_id__team_away_score}}</td>
+        <td>{{match.team_home_score}} - {{match.team_away_score}}</td>
+        <td>{{match.total}}</td>
+        <td>{{match.status}}</td>
+    </tr>
+
+  {% endfor %}
+
+  </tbody>
+</table>
+
+                         </div>
+        </footer>
+
+
+
 {% endblock %}

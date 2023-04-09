@@ -41,21 +41,26 @@
       <th scope="col">Data</th>
       <th scope="col">Mecz</th>
       <th scope="col">Liga</th>
+        <th scope="col">Multi</th>
+
     </tr>
   </thead>
   <tbody>
 
    {% for match in matches %}
 
-   {% if match.multiplier > 1 %}
-   <tr class="table-danger">
-   {% else %}
     <tr>
-       {% endif %}
 
         <td>{{match.date}}</td>
       <td><a href="{% url 'match_detail' pk=match.pk lg=match.league %}">{{match}}</a></td>
       <td>{{match.league}}</td>
+
+       {% if match.multiplier > 1 %}
+       <td><img src="{% static 'assets/img/multi.png' %}" width="30px" height="30px"/> </td>
+       {% else %}
+       <td></td>
+       {% endif %}
+
     </tr>
     {% endfor %}
 
@@ -85,7 +90,7 @@
                 <div class="row">
 
                     {% for userleague in usersleagues %}
-                    <div class="col ms-auto  "><a href="{% url 'league' lg=userleague.league %}">{{match}}{{userleague.league}}</a><p class="lead"></p></div>
+                    <div class="col ms-auto  "><h4><a href="{% url 'league' lg=userleague.league %}" style="color:white;">{{match}}{{userleague.league}}</a></h4></div>
                     {% endfor %}
 
                 </div>
