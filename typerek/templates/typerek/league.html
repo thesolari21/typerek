@@ -4,7 +4,7 @@
 {% block header %}
 <header class="masthead bg-primary text-white text-center">
             <div class="container d-flex align-items-center flex-column">
-                <h4 class="masthead-heading text-uppercase mb-0">{{lg}} </h4>
+                <h1 class=" text-uppercase mb-0">{{lg}} </h1>
             </div>
         </header>
 {% endblock %}
@@ -80,6 +80,7 @@
       <th scope="col">Mecz</th>
       <th scope="col">Wynik końcowy</th>
       <th scope="col">Twój typ</th>
+        <th scope="col">Pewniaczek</th>
         <th scope="col">Punkty</th>
         <th scope="col">Status</th>
     </tr>
@@ -90,11 +91,12 @@
 
     <tr>
       <td>{{match.match_id}}</td>
-        <td><a href="{% url 'match_detail' pk=match.match_id lg=match.match_id__league %}" style="color:white;">{{match.match_id__team_home_name}} - {{match.match_id__team_away_name}}</a></td>
+        <td><a href="{% url 'match_detail' pk=match.match_id lg=lg %}" style="color:white;">{{match.match_id__team_home_name}} - {{match.match_id__team_away_name}}</a></td>
         <td>{{match.match_id__team_home_score}} - {{match.match_id__team_away_score}}</td>
         <td>{{match.team_home_score}} - {{match.team_away_score}}</td>
+        <td>{{match.joker}}</td>
         <td>{{match.total}}</td>
-        <td>{{match.status}}</td>
+        <td>{% if match.status == 2 %} OK {% else %} X {% endif %}</td>
     </tr>
 
   {% endfor %}

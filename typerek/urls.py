@@ -6,6 +6,8 @@ urlpatterns = [
     path('<str:lg>/<int:pk>/',views.match_detail, name='match_detail'),
     path('login', views.login_page, name='login_page'),
     path('logout', views.logout_page, name='logout_page'),
+    path('rules', views.rules, name='rules'),
     path('<str:lg>', views.league, name='league'),
+
 
 ]

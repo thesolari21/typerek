@@ -3,16 +3,14 @@ from typerek.models import Matches
 from typerek.models import League
 from typerek.models import Bets
 from typerek.models import UsersLeagues
+from typerek.models import Conf
 from .forms import BetForm
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect
 from django.contrib import auth
 from django.db.models import Sum
 import datetime
-
 from django.contrib.auth.models import User
-
-# Create your views here.
 
 def login_page(request):
     context = {}
@@ -40,6 +38,17 @@ def logout_page(request):
     auth.logout(request)
     return redirect('match')
 
+def rules(request):
+    max_jokers = Conf.objects.get(name='max_jokers').value
+    p_joker = Conf.objects.get(name='p_joker').value
+    p_result = Conf.objects.get(name='p_result').value
+    p_sum_goals = Conf.objects.get(name='p_sum_goals').value
+    p_away_score = Conf.objects.get(name='p_away_score').value
+    p_home_score = Conf.objects.get(name='p_home_score').value
+    p_extra_bet = Conf.objects.get(name='p_extra_bet').value
+
+    return render(request, 'typerek/rules.html', {'max_jokers':max_jokers,'p_joker':p_joker, 'p_result':p_result,'p_sum_goals':p_sum_goals, 'p_away_score':p_away_score, 'p_home_score':p_home_score, 'p_extra_bet':p_extra_bet})
+
 def match(request):
     leagues = League.objects.all
 
@@ -63,22 +72,26 @@ def match_detail(request, pk, lg):
         bet = Bets(match_id=Matches.objects.get(pk=pk), user=User.objects.get(id=request.user.id))
         bet.save()
 
-
+    league_id = League.objects.get(name=lg)
     if request.method == "POST":
-        form = BetForm(request.POST, instance=bet)
+
+
+        form = BetForm(request.POST, instance=bet, initial={'user': request.user.id, 'league': league_id})
+
         if form.is_valid():
             bet = form.save(commit=False)
             bet.status = 1
             bet.save()
     else:
-        form = BetForm(instance=bet)
+        form = BetForm(request.POST, instance=bet, initial={'user': request.user.id, 'league': league_id })
+
 
     if match.date > datetime.date.today():
         can_bet = True
     else:
         can_bet = False
 
-    return render(request, 'typerek/match_detail.html', {'match':match , 'bet':bet, 'form': form, 'can_bet':can_bet} )
+    return render(request, 'typerek/match_detail.html', {'match':match , 'bet':bet, 'form': form, 'can_bet':can_bet, 'lg':lg} )
 
 
 def league(request, lg):
@@ -102,6 +115,7 @@ def league(request, lg):
                 'team_home_score',
                 'team_away_score',
                 'status',
+                'joker',
                 'total').order_by('match_id__date')
 
     return render(request, 'typerek/league.html', {'league_overall': league_overall, 'matches_overall':matches_overall , 'lg':lg})

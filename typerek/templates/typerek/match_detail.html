@@ -4,6 +4,7 @@
 
 {% block header %}
 <header class="masthead bg-primary text-white text-center">
+
             <div class="container d-flex align-items-center flex-column">
                 <div class="row justify-content-center">
 
@@ -12,7 +13,11 @@
                     <div></div>
                     <div class="col-lg-3 "><h2 class="page-section-heading text-right text-uppercase mb-3">{{match.team_home_score}}  </h2></div>
                     <div class="col-lg-3 "><h2 class="page-section-heading text-right text-uppercase mb-3">{{match.team_away_score}}  </h2></div>
+
+                    {% if match.extra_bet_name is not None %}
                     <h4 class="page-section-heading text-center text-uppercase mb-1">{{match.extra_bet_name}} {{match.extra_bet_result}}</h4>
+                    {% endif %}
+
 
                     <div class="divider-custom">
                     <div class="divider-custom-line"></div>
@@ -23,7 +28,11 @@
                     <div class="row">
                         <p><h5> Twój typ </h5></p>
 
-                        <div class="ms-auto" ><p class="lead"><mark> {{match.team_home_name}} {{bet.team_home_score}} - {{bet.team_away_score}} {{match.team_away_name}} // Extra bet: {{bet.extra_bet}} // Żetony pewniaczki: {{bet.joker}}</mark></p></div>
+                         {% if match.extra_bet_name is not None %}
+                        <div class="ms-auto" ><p class="lead"><mark> {{match.team_home_name}} {{bet.team_home_score}} - {{bet.team_away_score}} {{match.team_away_name}} // Extra bet: {{bet.extra_bet}} // Pewniaczek: {% if bet.joker == 1 %} TAK {% else %} NIE {% endif %}</mark></p></div>
+                        {% else %}
+                        <div class="ms-auto" ><p class="lead"><mark> {{match.team_home_name}} {{bet.team_home_score}} - {{bet.team_away_score}} {{match.team_away_name}} // Pewniaczek: {% if bet.joker == 1 %} TAK {% else %} NIE {% endif %}</mark></p></div>
+                        {% endif %}
 
                 </div>
 
@@ -60,6 +69,8 @@
                         <div class="help-block with-errors"></div>
                     </div>
                 </div>
+
+                {% if match.extra_bet_name is not None %}
                 <div class="col-sm-3">
                     <div class="form-group">
                         <label for="form_extra_bet_name">{{match.extra_bet_name}}</label>
@@ -67,6 +78,8 @@
                         <div class="help-block with-errors"></div>
                     </div>
                 </div>
+                {% endif %}
+
                 <div class="col-sm-3">
                     <div class="form-group">
                         <label for="form_joker">Pewniaczek *</label>
@@ -105,7 +118,7 @@
             <div class="container">
 
                 <div class="container">
-                <h2 class="page-section-heading text-center text-uppercase text-white">Punkty</h2>
+                <h2 class="page-section-heading text-center text-uppercase text-white">Punkty za mecz</h2>
                 <div class="divider-custom divider-light">
                     <div class="divider-custom-line"></div>
                     <div class="divider-custom-icon"><i class="fas fa-star"></i></div>
@@ -123,7 +136,7 @@
       <th>Rezultat</th>
         <th>Extra Bet</th>
       <th>Mnożnik</th>
-      <th>Joker</th>
+      <th>Pewniaczek</th>
     </tr>
   </thead>
   <tbody>
@@ -134,7 +147,7 @@
       <td>{{bet.p_sum_goals}}</td>
         <td>{{bet.p_result}}</td>
         <td>{{bet.p_extra_bet}}</td>
-      <td>{{bet.multiplier}}</td>
+      <td>{{match.multiplier}}</td>
       <td>{{bet.p_joker}}</td>
     </tr>
   </tbody>
@@ -143,7 +156,8 @@
 <br>
 
 <div class="container">
-                <h2 class="page-section-heading text-center text-uppercase text-white">Suma: {{bet.total}}</h2>
+                <h2 class="page-section-heading text-center text-uppercase text-white">
+                    <a href="{% url 'league' lg=lg %}" style="color:white;">Suma: {{bet.total}} </a></h2>
                          </div>
 
             </div>
