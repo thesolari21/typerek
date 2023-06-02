@@ -5,8 +5,8 @@ from django.contrib import admin
 from .models import Conf, League, Matches, Bets, UsersLeagues
 
 class MatchesAdmin(admin.ModelAdmin):
-    list_display = ('__str__', 'league', 'date', 'multiplier')
-    list_filter = ( 'league', 'date', 'multiplier')
+    list_display = ('__str__', 'league', 'date', 'multiplier','status')
+    list_filter = ( 'league', 'date', 'multiplier','status')
 
 class BetsAdmin(admin.ModelAdmin):
     list_display = ('__str__', 'user', 'status')

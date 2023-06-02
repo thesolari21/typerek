@@ -43,3 +43,13 @@ class BetForm(forms.ModelForm):
         if used_jokers + joker > max_jokers:
             raise forms.ValidationError(f'Przekroczono limit jokerów ({max_jokers}).')
         return joker
+
+    def save(self, commit=True):
+
+        instance = super().save(commit=False)
+        instance.status = 1
+
+        if commit:
+            instance.save()
+
+        return instance

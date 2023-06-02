@@ -58,7 +58,16 @@ def match(request):
         user = 0
         usersleagues = UsersLeagues.objects.all().filter(user=user)
 
-    matches = Matches.objects.select_related('league').filter(league__in=usersleagues.values('league')).filter(date__gte=datetime.date.today()).order_by('date')
+    matches = Matches.objects.select_related('league').prefetch_related('bets_set').filter(
+        league__in=usersleagues.values('league')
+    ).filter(date__gte=datetime.date.today()).order_by('date')
+
+    for match in matches:
+        try:
+            bet = Bets.objects.get(match_id=match, user=request.user)
+            match.status = bet.status
+        except Bets.DoesNotExist:
+            match.status = None
 
     return render(request, 'typerek/index.html', {'leagues':leagues, 'matches':matches, 'usersleagues':usersleagues})
 

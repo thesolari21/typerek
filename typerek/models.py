@@ -31,6 +31,7 @@ class Matches(models.Model):
     league = models.ForeignKey(League, on_delete=models.CASCADE)
     extra_bet_name = models.CharField(max_length=100, null=True, blank=True , default= 'Wpisz zaklad lub pozostaw puste'  )
     extra_bet_result = models.PositiveIntegerField(null=True, blank=True)
+    status = models.IntegerField(null=True, blank=True, default=0)
 
     def __str__(self):
         return f"{self.team_home_name} - {self.team_away_name}"
@@ -48,7 +49,7 @@ class Bets(models.Model):
     p_extra_bet = models.IntegerField(null=True, blank=True , default=0)
     p_joker = models.IntegerField(null=True, blank=True , default=0)
     total = models.IntegerField(null=True, blank=True , default=0)
-    status = models.IntegerField(null=True, blank=True, default=1)
+    status = models.IntegerField(null=True, blank=True, default=0)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True)
 
     def __str__(self):
