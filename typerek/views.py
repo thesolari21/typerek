@@ -54,6 +54,8 @@ def match(request):
 
     try:
         usersleagues = UsersLeagues.objects.select_related('league').filter(user=request.user).filter(league__status=1)
+
+    # na wypadek userów niezalogowanych
     except TypeError:
         user = 0
         usersleagues = UsersLeagues.objects.all().filter(user=user)
@@ -83,7 +85,6 @@ def match_detail(request, pk, lg):
 
     league_id = League.objects.get(name=lg)
     if request.method == "POST":
-
 
         form = BetForm(request.POST, instance=bet, initial={'user': request.user.id, 'league': league_id})
 
