@@ -5,39 +5,74 @@
 {% block header %}
 <header class="masthead bg-primary text-white text-center">
 
-            <div class="container d-flex align-items-center flex-column">
-                <div class="row justify-content-center">
-
-                    <div class="col-lg-3 "><h2 class="page-section-heading text-right text-uppercase mb-3">{{match.team_home_name}}  </h2></div>
-                    <div class="col-lg-3 "><h2 class="page-section-heading text-right text-uppercase mb-3">{{match.team_away_name}}  </h2></div>
-                    <div></div>
-                    <div class="col-lg-3 "><h2 class="page-section-heading text-right text-uppercase mb-3">{{match.team_home_score}}  </h2></div>
-                    <div class="col-lg-3 "><h2 class="page-section-heading text-right text-uppercase mb-3">{{match.team_away_score}}  </h2></div>
-
-                    {% if match.extra_bet_name is not None %}
-                    <h4 class="page-section-heading text-center text-uppercase mb-1">{{match.extra_bet_name}} {{match.extra_bet_result}}</h4>
-                    {% endif %}
-
-
-                    <div class="divider-custom">
+<div class="container">
+                <h2 class="page-section-heading text-center text-uppercase text-white">Wynik meczu</h2>
+                <div class="divider-custom divider-light">
                     <div class="divider-custom-line"></div>
-                    <div class="divider-custom-icon" ><i class="fas fa-star"></i></div>
+                    <div class="divider-custom-icon"><i class="fas fa-star"></i></div>
                     <div class="divider-custom-line"></div>
                 </div>
+                         </div>
 
+<div class="container">
+    <div class="row mt-5 text-dark">
+        <div class="col-md-6 offset-md-3">
+            <div class="card match-card shadow">
+                <div class="card-header bg-primary text-white">
                     <div class="row">
-                        <p><h5> Twój typ </h5></p>
-
-                         {% if match.extra_bet_name is not None %}
-                        <div class="ms-auto" ><p class="lead"><mark> {{match.team_home_name}} {{bet.team_home_score}} - {{bet.team_away_score}} {{match.team_away_name}} // Extra bet: {{bet.extra_bet}} // Pewniaczek: {% if bet.joker == 1 %} TAK {% else %} NIE {% endif %}</mark></p></div>
-                        {% else %}
-                        <div class="ms-auto" ><p class="lead"><mark> {{match.team_home_name}} {{bet.team_home_score}} - {{bet.team_away_score}} {{match.team_away_name}} // Pewniaczek: {% if bet.joker == 1 %} TAK {% else %} NIE {% endif %}</mark></p></div>
-                        {% endif %}
-
+                        <div class="col-6">
+                            <h4 class="mb-0 text-center">{{match.team_home_name}}</h4>
+                        </div>
+                        <div class="col-6 text-center">
+                            <h4 class="mb-0">{{match.team_away_name}}</h4>
+                        </div>
+                    </div>
                 </div>
-
-                     </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="team-info mb-4">
+                                {% if match.team_home_score == None %}
+                                    <h1 class="text-center display-1 font-weight-bold"> - </h1>
+                                {% elif match.team_home_score > match.team_away_score %}
+                                    <h1 class="text-center display-1 font-weight-bold text-success">{{ match.team_home_score }}</h1>
+                                {% elif match.team_home_score < match.team_away_score %}
+                                    <h1 class="text-center display-1 font-weight-bold text-danger">{{ match.team_home_score }}</h1>
+                                {% else %}
+                                    <h1 class="text-center display-1 font-weight-bold">{{ match.team_home_score }}</h1>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="team-info mb-4">
+                                {% if match.team_away_score == None %}
+                                    <h1 class="text-center display-1 font-weight-bold"> - </h1>
+                                {% elif match.team_away_score > match.team_home_score %}
+                                    <h1 class="text-center display-1 font-weight-bold text-success">{{ match.team_away_score }}</h1>
+                                {% elif match.team_away_score < match.team_home_score %}
+                                    <h1 class="text-center display-1 font-weight-bold text-danger">{{ match.team_away_score }}</h1>
+                                {% else %}
+                                    <h1 class="text-center display-1 font-weight-bold">{{ match.team_away_score }}</h1>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="team-info">
+                        <p><i class="fas fa-futbol icon"></i> {{match.extra_bet_name}}: <strong>{% if match.extra_bet_result == None %} - {% else %} {{match.extra_bet_result}} {% endif %}</strong></p>
+                        <p><i class="far fa-calendar-alt icon"></i> Data Spotkania: <strong>{{ match.date }}</strong></p>
+                        <p><i class="fas fa-comment icon"></i> Uwagi: <strong>{% if match.multiplier > 1 %} Mnożymy punkty razy {{match.multiplier}}! {% else %} {% endif %} </strong></p>
+                    </div>
+                </div>
             </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+
+
         </header>
 
 {% endblock %}
@@ -51,18 +86,61 @@
 
                 {% if can_bet  %}
 
+
+<h2 class="page-section-heading text-center text-uppercase" style="font-size: 1.8rem;" >TWÓJ TYP</h2>
+                    <div class="divider-custom"></div>
+
+<div class="table-responsive">
+               <table class="table table-hover text-center ">
+  <thead>
+    <tr>
+
+      <th scope="col">Wynik</th>
+        <th scope="col">{{match.extra_bet_name}}</th>
+        <th scope="col">Pewniaczek</th>
+
+    </tr>
+  </thead>
+  <tbody>
+
+    <tr>
+           <td>{% if bet.team_home_score == None or bet.team_away_score == None %} - {% else %}
+                                {{match.team_home_name}} {{bet.team_home_score}} - {{bet.team_away_score}} {{match.team_away_name}}
+                                {% endif %}</td>
+           <td>{% if bet.extra_bet == None %} - {% else %} {{bet.extra_bet}} {% endif %}</td>
+           <td>{% if bet.joker == 1 %} Tak {% else %} Nie {% endif %}</td>
+
+    </tr>
+
+  </tbody>
+</table>
+                </div>
+
+
+                <div class="divider-custom">
+                    <div class="divider-custom-line"></div>
+                    <div class="divider-custom-icon" ><i class="fas fa-star"></i></div>
+                    <div class="divider-custom-line"></div>
+                    </div>
+                <div class="divider-custom"></div>
+
+
+<h2 class="page-section-heading text-center text-uppercase" style="font-size: 1.8rem;" >Popraw lub obstaw</h2>
+<div class="divider-custom"></div>
+
+
 <form method="POST" class="post-form">{% csrf_token %}
 
-        <div class="controls">
-            <div class="row">
-                <div class="col-sm-3">
+        <div class="controls ">
+            <div class="row justify-content-center">
+                <div class="col-sm-2">
                     <div class="form-group">
                         <label for="form_home_name">{{match.team_home_name}} *</label>
                         {{ form.team_home_score|as_crispy_field }}
                         <div class="help-block with-errors"></div>
                     </div>
                 </div>
-                <div class="col-sm-3">
+                <div class="col-sm-2">
                     <div class="form-group">
                         <label for="form_away_name">{{match.team_away_name}} *</label>
                         {{ form.team_away_score|as_crispy_field }}
@@ -70,17 +148,15 @@
                     </div>
                 </div>
 
-                {% if match.extra_bet_name is not None %}
-                <div class="col-sm-3">
+                <div class="col-sm-2">
                     <div class="form-group">
                         <label for="form_extra_bet_name">{{match.extra_bet_name}}</label>
                         {{ form.extra_bet|as_crispy_field }}
                         <div class="help-block with-errors"></div>
                     </div>
                 </div>
-                {% endif %}
 
-                <div class="col-sm-3">
+                <div class="col-sm-2">
                     <div class="form-group">
                         <label for="form_joker">Pewniaczek *</label>
                         {{ form.joker|as_crispy_field }}
@@ -100,9 +176,41 @@
 
                  <div class=" ms-auto text-center"><p class="lead">
 
-                     Obstawianie zakończone! Możesz dokonać zmian <u> najpóźniej dzień przed </u>rozpoczęciem meczu.
+                     Ups... Wygląda, że obstawianie jest już zakończone!
+                     Wszystkie typy dla tego meczu.
 
                  </p> </div>
+
+                 <div class="table-responsive">
+               <table class="table table-hover text-center">
+  <thead>
+    <tr>
+        <th scope="col">Gracz</th>
+      <th scope="col">Wynik</th>
+        <th scope="col">{{match.extra_bet_name}}</th>
+        <th scope="col">Pewniaczek</th>
+        <th scope="col">Punkty</th>
+
+    </tr>
+  </thead>
+  <tbody>
+
+    {% for b in bet_all_users %}
+
+    <tr>
+
+           <td>{{b.user}}</td>
+           <td>{{b.team_home_score}} - {{b.team_away_score}}</td>
+           <td>{{b.extra_bet}}</td>
+           <td>{% if b.joker == 1 %} Tak {% else %} Nie {% endif %}</td>
+           {% if b.status == 2 %} <td>{{b.total}}</td> {% endif %}
+
+    </tr>
+    {% endfor %}
+
+  </tbody>
+</table>
+                </div>
 
 
                 {% endif %}
@@ -130,25 +238,25 @@
                     <table class="table table-bordered text-white">
   <thead>
     <tr>
-      <th>BramkiGosp</th>
-      <th>BramkiGość</th>
-      <th>BramkiSuma</th>
-      <th>Rezultat</th>
-        <th>Extra Bet</th>
-      <th>Mnożnik</th>
-      <th>Pewniaczek</th>
+      <th>Bramki</th>
+      <th>Zwycięzca</th>
+        <th>ExtraBet</th>
+        <th>Pewniaczek</th>
+        <th>Mnożnik</th>
+      <th>Status</th>
+
     </tr>
   </thead>
   <tbody>
     <tr>
 
-        <td>{{bet.p_home_score}}</td>
-      <td>{{bet.p_away_score}}</td>
-      <td>{{bet.p_sum_goals}}</td>
+        <td>{% with result=bet.p_home_score|add:bet.p_away_score|add:bet.p_sum_goals %}{{ result }}{% endwith %}</td>
         <td>{{bet.p_result}}</td>
         <td>{{bet.p_extra_bet}}</td>
-      <td>{{match.multiplier}}</td>
-      <td>{{bet.p_joker}}</td>
+         <td>{{bet.p_joker}}</td>
+        <td>{{match.multiplier}}</td>
+      <td>{% if bet.status == 2 %} Przeliczone {% elif bet.status == 1 %} Obstawione {% else %} Do obstawienia {% endif %}</td>
+
     </tr>
   </tbody>
 </table>

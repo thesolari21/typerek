@@ -15,41 +15,42 @@ update
 	from
 	(
 	select
-	b.status,
-	b.id,
-	b.match_id_id,
-	b.user_id,
-	m.multiplier,
-	m.team_home_score as mths,
-	m.team_away_score as mtas,
-	m.extra_bet_result,
-	b.team_home_score as bths,
-	b.team_away_score as btas,
-	b.extra_bet,
-	b.joker,
+	m.status as mstat,              -- match status
+	b.status ,                      -- bet status
+	b.id ,                          -- bet id
+	b.match_id_id ,                 -- match id
+	b.user_id ,                     -- user id
+	m.multiplier,                   -- multiplier
+	m.team_home_score as mths,      -- home score in match
+	m.team_away_score as mtas,      -- away score in match
+	m.extra_bet_result,             -- etra bet result in match
+	b.team_home_score as bths,      -- bet home score
+	b.team_away_score as btas,      -- bet away score
+	b.extra_bet,                    -- bet extra bet
+	b.joker,                        -- bet joket
 
-	CASE
+	CASE                            -- calculate points for home score
 		when m.team_home_score = b.team_home_score then @p_home_score
 		else 0
 	END as 'calc_p_home_score',
-	CASE
+	CASE                            -- calculate points for away score
 		when m.team_away_score = b.team_away_score then @p_away_score
 		else 0
 	END as 'calc_p_away_score',
-	CASE
+	CASE                            -- calculate points for sum goals
 		when (m.team_away_score + m.team_home_score)  = (b.team_away_score + b.team_home_score) then @p_sum_goals
 		else 0
 	END as 'calc_p_sum_goals',
-	CASE
+	CASE                            -- calculate point for result
 		when (CAST(m.team_home_score as signed) - cast(m.team_away_score as signed)) * (cast(b.team_home_score as signed) - cast(b.team_away_score as signed)) > 0 then @p_result
 		when (CAST(m.team_home_score as signed) - cast(m.team_away_score as signed)) = (cast(b.team_home_score as signed) - cast(b.team_away_score as signed)) then @p_result
 		else 0
 	END as 'calc_p_result',
-	CASE
+	CASE                            -- calculate points for extra bet
 		when m.extra_bet_result = b.extra_bet then @p_extra_bet
 		else 0
 	END as 'calc_p_extra_bet',
-	CASE
+	CASE                            -- calculate points for joker
 		when (CAST(m.team_home_score as signed) - cast(m.team_away_score as signed)) * (cast(b.team_home_score as signed) - cast(b.team_away_score as signed)) > 0 then @p_joker * b.joker
 		when (CAST(m.team_home_score as signed) - cast(m.team_away_score as signed)) = (cast(b.team_home_score as signed) - cast(b.team_away_score as signed)) then @p_joker * b.joker
 		else cast(@p_joker as signed) * cast(b.joker as signed) * -1
@@ -57,7 +58,7 @@ update
 
 	from typerek_matches m
 	inner join typerek_bets b
-	on m.id = b.match_id_id and b.status = 1
+	on m.id = b.match_id_id and b.status = 1 and m.status = 1   -- must bet status = 1 (bet) and match status = 1 (closed)
 	) z
     ) calc
     on tb.id = calc.id
@@ -71,6 +72,37 @@ set
     tb.p_joker = calc.calc_p_joker,
     tb.total = calc.calc_p_total,
 	tb.status = 2
-where
-	tb.status = 1
+
 ;
+
+
+set @p_answer = (select value from typerek_conf where name = 'p_answer');
+
+update typerek_answers ta
+inner join
+
+    (
+    select
+    q.status as qstat,          -- question status
+    a.status,                   -- answer status
+    a.id,                       -- answer ID
+    a.question_id_id,           -- answer question
+    a.user_id,                  -- answer user ID
+    q.answer as qa,             -- correct answer
+    a.answer as aa,             -- answer by user
+
+    CASE
+        when q.answer = a.answer then @p_answer else 0
+    END as 'calc_p_answer'
+
+    from typerek_questions q
+    inner join typerek_answers a on q.id = a.question_id_id and q.status = 1 and a.status = 1
+    ) calc
+    on ta.id = calc.id
+
+set
+    ta.p_answer = calc.calc_p_answer,
+    ta.status = 2
+
+;
+

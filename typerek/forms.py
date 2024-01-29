@@ -1,9 +1,11 @@
 from django import forms
 from django.db.models import Sum
 from .models import Bets
+from .models import Answers
 from .models import Conf
 
 class BetForm(forms.ModelForm):
+
     YES_NO_CHOICES = (
         (0, 'Nie'),
         (1, 'Tak'),
@@ -32,7 +34,6 @@ class BetForm(forms.ModelForm):
 
         max_jokers = Conf.objects.get(name='max_jokers')
         max_jokers = max_jokers.value
-        print(max_jokers)
 
         joker = int(self.cleaned_data['joker'])
 
@@ -43,6 +44,36 @@ class BetForm(forms.ModelForm):
         if used_jokers + joker > max_jokers:
             raise forms.ValidationError(f'Przekroczono limit jokerów ({max_jokers}).')
         return joker
+
+    def save(self, commit=True):
+
+        instance = super().save(commit=False)
+        instance.status = 1
+
+        if commit:
+            instance.save()
+
+        return instance
+
+class AnswerForm(forms.ModelForm):
+    answer = forms.ChoiceField(choices=[], label='')
+
+    class Meta:
+        model = Answers
+        fields = ('answer',)
+        labels = {
+            'answer': '',
+        }
+
+    def __init__(self, *args, **kwargs ):
+
+        self.user = kwargs['initial']['user']
+        self.league = kwargs['initial']['league']
+        super().__init__(*args, **kwargs)
+
+        # Pobierz możliwe odpowiedzi z pola choice_list i przekształć na listę
+        choices = [(choice, choice) for choice in self.instance.question_id.choice_list.split(',')]
+        self.fields['answer'].choices = choices
 
     def save(self, commit=True):
 

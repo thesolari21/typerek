@@ -24,15 +24,17 @@
                     <div class="divider-custom-line"></div>
                 </div>
 
-               <table class="table table-hover">
+
+                <div class="table-responsive">
+               <table id="myTable" class="table table-hover text-center">
   <thead>
     <tr>
         <th scope="col">Gracz</th>
-      <th scope="col">Punkty bramki</th>
-        <th scope="col">Punkty zwycięzca</th>
-        <th scope="col">Punkty ExtraBet</th>
-        <th scope="col">Punkty pewniaczki</th>
-        <th scope="col">Suma</th>
+        <th scope="col">Przeliczone mecze</th>
+        <th scope="col">Trafiony wynik!</th>
+        <th scope="col">[Suma] Punkty za mecze</th>
+        <th scope="col">[Suma] Punkty za pytania do ligi</th>
+        <th scope="col">Razem</th>
     </tr>
   </thead>
   <tbody>
@@ -41,30 +43,47 @@
 
     <tr>
 
-        <td>{{player.user__username}}</td>
-           <td>{{player.sum_sum_goals}}</td>
-           <td>{{player.sum_result}}</td>
-           <td>{{player.sum_extra_bet}}</td>
-           <td>{{player.sum_joker}}</td>
+           <td>{{player.user__username}}</td>
+           <td>{{player.count_result}}</td>
+           <td>{{player.sum_excellent}}</td>
            <td>{{player.sum_total}}</td>
+
+            {% for quest_player in league_overall_answers %}
+                {% if quest_player.user__username == player.user__username %}
+                    <td>{{ quest_player.sum_answer }}</td>
+                    <td>{% with result=player.sum_total|add:quest_player.sum_answer %}{{ result }}{% endwith %}</td>
+                {% endif %}
+                {% empty %}
+                     <td></td>
+                     <td>{{player.sum_total}}</td>
+            {% endfor %}
+
     </tr>
     {% endfor %}
 
   </tbody>
 </table>
+                </div>
 
                             </div>
         </section>
 
-
+  <script>
+  $(document).ready(function () {
+    $('#myTable').DataTable({
+      searching: false  // Ukryj pole wyszukiwania
+    });
+  });
+</script>
 
 {% endblock %}
 
 {% block footer %}
 
 <footer class="footer text-center">
-            <div class="container">
-                <h2 class="page-section-heading text-center text-uppercase text-white">Twoje mecze w lidze</h2>
+
+                <div class="container">
+                <h2 class="page-section-heading text-center text-uppercase text-white">Twoje obstawione pytania do ligi</h2>
                 <!-- Icon Divider-->
                 <div class="divider-custom divider-light">
                     <div class="divider-custom-line"></div>
@@ -72,7 +91,53 @@
                     <div class="divider-custom-line"></div>
                 </div>
 
+                <div class="table-responsive">
+                <table class="table table-bordered text-white  ">
+  <thead>
+    <tr>
+      <th scope="col">ID</th>
+      <th scope="col">Mecz</th>
+      <th scope="col">Wynik końcowy</th>
+      <th scope="col">Twój typ</th>
+        <th scope="col">Punkty</th>
+        <th scope="col">Status</th>
+    </tr>
+  </thead>
+  <tbody>
 
+  {% for quest in questions_overall %}
+
+    <tr>
+      <td>{{quest.question_id}}</td>
+        <td><a href="{% url 'question_detail' pk=quest.question_id lg=lg %}" style="color:white;">{{quest.question_id__question}}</a></td>
+        <td>{% if quest.question_id__answer == None %} - {% else %} {{quest.question_id__answer}} {% endif %} </td>
+        <td>{% if quest.answer == None %} - {% else %} {{quest.answer}} {% endif %} </td>
+        <td>{{quest.p_answer}}</td>
+        <td>{% if quest.status == 2 %} Przeliczone {% else %} Obstawione {% endif %}</td>
+    </tr>
+
+  {% endfor %}
+
+  </tbody>
+</table>
+                </div>
+
+                         </div>
+
+    <div class="divider-custom divider-light">
+                </div>
+
+
+            <div class="container">
+                <h2 class="page-section-heading text-center text-uppercase text-white">Twoje obstawione mecze w lidze</h2>
+                <!-- Icon Divider-->
+                <div class="divider-custom divider-light">
+                    <div class="divider-custom-line"></div>
+                    <div class="divider-custom-icon"><i class="fas fa-star"></i></div>
+                    <div class="divider-custom-line"></div>
+                </div>
+
+                <div class="table-responsive">
                 <table class="table table-bordered text-white ">
   <thead>
     <tr>
@@ -92,17 +157,18 @@
     <tr>
       <td>{{match.match_id}}</td>
         <td><a href="{% url 'match_detail' pk=match.match_id lg=lg %}" style="color:white;">{{match.match_id__team_home_name}} - {{match.match_id__team_away_name}}</a></td>
-        <td>{{match.match_id__team_home_score}} - {{match.match_id__team_away_score}}</td>
-        <td>{{match.team_home_score}} - {{match.team_away_score}}</td>
-        <td>{{match.joker}}</td>
+        <td>{% if match.match_id__team_home_score == None or match.match_id__team_away_score == None %} - {% else %} {{match.match_id__team_home_score}} - {{match.match_id__team_away_score}} {% endif %} </td>
+        <td>{% if match.team_home_score == None or match.team_away_score == None %} - {% else %} {{match.team_home_score}} - {{match.team_away_score}} {% endif %} </td>
+        <td>{% if match.joker == 1 %} Tak {% else %} Nie {% endif %}</td>
         <td>{{match.total}}</td>
-        <td>{% if match.status == 2 %} OK {% else %} X {% endif %}</td>
+        <td>{% if match.status == 2 %} Przeliczone {% else %} Obstawione {% endif %}</td>
     </tr>
 
   {% endfor %}
 
   </tbody>
 </table>
+                </div>
 
                          </div>
         </footer>

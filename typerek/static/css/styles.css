@@ -11555,3 +11555,41 @@ html {
 .dropdown:hover .dropbtn {
   background-color: #3e8e41;
 }
+
+
+.card {
+  border: none;
+}
+
+.card-header {
+  background-color: transparent;
+  border-radius: 10px 10px 0 0;
+  border: 2px solid #ffffff;
+  text-align: center;
+  padding: 8px 0;
+}
+
+.card-body {
+  background-color: transparent;
+  border: none;
+  padding: 10px;
+  margin-top: -2px;
+  box-shadow: none; /* Usunięcie cienia */
+}
+
+.rounded-box {
+  background-color: transparent;
+  padding: 10px;
+  border: 2px solid #ffffff;
+  border-radius: 10px;
+  margin-bottom: 20px;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.box-header {
+  margin-top: 0;
+}
+
+
+
+

@@ -1,0 +1,173 @@
+{% extends 'typerek/base.html' %}
+{% load static %}
+{% load crispy_forms_tags %}
+
+{% block header %}
+<header class="masthead bg-primary text-white text-center">
+
+<div class="container">
+                <h2 class="page-section-heading text-center text-uppercase text-white">{{question.question}}</h2>
+                <div class="divider-custom divider-light">
+                    <div class="divider-custom-line"></div>
+                    <div class="divider-custom-icon"><i class="fas fa-star"></i></div>
+                    <div class="divider-custom-line"></div>
+                </div>
+                         </div>
+
+<div class="container">
+    <div class="row mt-5 text-dark">
+        <div class="col-md-6 offset-md-3">
+            <div class="card match-card shadow">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-12">
+
+                                {% if question.answer == None %}
+                                    <h2 class="text-center display-2 font-weight-bold" style="font-size: 40px;"> - </h2>
+                                {% else %}
+                                    <h2 class="text-center display-2 font-weight-bold" style="font-size: 40px;">{{ question.answer }}</h2>
+                                {% endif %}
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+
+
+        </header>
+
+{% endblock %}
+
+
+
+{% block content %}
+
+        <section class="page-section portfolio" id="portfolio">
+            <div class="container">
+
+                {% if can_bet  %}
+
+
+<h2 class="page-section-heading text-center text-uppercase" style="font-size: 1.8rem;" >TWÓJ TYP</h2>
+                    <div class="divider-custom"></div>
+
+
+<div class="table-responsive">
+               <table class="table table-hover text-center display-6 ">
+  <thead>
+  </thead>
+  <tbody>
+
+    <tr>
+           <td>{{answer.answer}}</td>
+    </tr>
+
+  </tbody>
+</table>
+                </div>
+
+                <div class="divider-custom">
+                    <div class="divider-custom-line"></div>
+                    <div class="divider-custom-icon" ><i class="fas fa-star"></i></div>
+                    <div class="divider-custom-line"></div>
+                    </div>
+                <div class="divider-custom"></div>
+
+
+<h2 class="page-section-heading text-center text-uppercase" style="font-size: 1.8rem;" >Popraw lub obstaw</h2>
+<div class="divider-custom"></div>
+
+
+<form method="POST" class="post-form">
+    {% csrf_token %}
+
+        <div class="controls ">
+            <div class="row justify-content-center">
+                <div class="col-sm-2">
+                    <div class="form-group">
+                        {{ form.answer|as_crispy_field }}
+                        <div class="help-block with-errors"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <br>
+        <div class="col-md-12 text-center">
+        <button type="submit" class="btn btn-primary btn-lg">Zapisz</button>
+        </div>
+
+    </form>
+                {% else %}
+
+                 <div class=" ms-auto text-center"><p class="lead">
+
+                     Ups... Wygląda, że obstawianie jest już zakończone!
+                     Wszystkie typy dla tego meczu.
+
+                 </p> </div>
+
+                 <div class="table-responsive">
+               <table class="table table-hover text-center">
+  <thead>
+    <tr>
+        <th scope="col">Gracz</th>
+        <th scope="col">Typ</th>
+        <th scope="col">Punkty</th>
+
+    </tr>
+  </thead>
+  <tbody>
+
+    {% for b in bet_all_users %}
+
+    <tr>
+
+           <td>{{b.user}}</td>
+           <td>{{b.answer}}</td>
+           {% if b.status == 2 %} <td>{{b.p_answer}}</td> {% endif %}
+
+    </tr>
+    {% endfor %}
+
+  </tbody>
+</table>
+                </div>
+
+                {% endif %}
+
+                  </div>
+        </section>
+
+{% endblock %}
+
+{% block footer %}
+
+                <footer class="footer text-center">
+            <div class="container">
+
+                <div class="container">
+                <h2 class="page-section-heading text-center text-uppercase text-white">Zdobyte punkty</h2>
+                <div class="divider-custom divider-light">
+                    <div class="divider-custom-line"></div>
+                    <div class="divider-custom-icon"><i class="fas fa-star"></i></div>
+                    <div class="divider-custom-line"></div>
+                </div>
+                         </div>
+
+<div class="container">
+                <h2 class="page-section-heading text-center text-uppercase text-white">
+                                   <a href="{% url 'league' lg=lg %}" style="color:white;">{{answer.p_answer}} </a></h2>
+                         </div>
+
+            </div>
+        </footer>
+
+{% endblock %}
