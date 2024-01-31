@@ -114,3 +114,6 @@ Produkcja
 * naprawa wielu pomniejszych bugów graficznych
 * 100% responsywność
 * loginy/dostępy w 1 pliku .env
+
+# 2.1
+* reset hasła by email

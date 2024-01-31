@@ -201,7 +201,7 @@
 
            <td>{{b.user}}</td>
            <td>{{b.team_home_score}} - {{b.team_away_score}}</td>
-           <td>{{b.extra_bet}}</td>
+           <td>{% if b.extra_bet == None %} - {% else %} {{b.extra_bet}} {% endif %}</td>
            <td>{% if b.joker == 1 %} Tak {% else %} Nie {% endif %}</td>
            {% if b.status == 2 %} <td>{{b.total}}</td> {% endif %}
 
