@@ -4,6 +4,8 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.conf import settings
+from django.core.validators import FileExtensionValidator
+from django.core.exceptions import ValidationError
 
 
 class Conf(models.Model):
@@ -81,3 +83,56 @@ class UsersLeagues(models.Model):
 
     def __str__(self):
         return f"{self.user} - {self.league}"
+
+class CategoryArticles(models.Model):
+    category = models.CharField(max_length=30)
+
+    def __str__(self):
+        return f"{self.category}"
+
+class Articles(models.Model):
+    title = models.TextField()
+    description = models.TextField(null=True)
+    category = models.ForeignKey(CategoryArticles, on_delete=models.CASCADE)
+    status = models.IntegerField(null=True, blank=True, default=1, help_text="0 - nieaktywny, 1 - aktywny")
+    author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True)
+    update_date = models.DateTimeField(auto_now=True)
+    image = models.ImageField(
+        upload_to='image_articles/',
+        null=True,
+        blank=True,
+        validators=[
+            FileExtensionValidator(allowed_extensions=['jpg', 'jpeg', 'png', 'gif'])
+        ],
+        help_text="Maksymalny rozmiar: 200KB. Dozwolone formaty: jpg, jpeg, png, gif.")
+
+    def clean(self):
+        if self.image:
+            if self.image.size > 200 * 1024:  # 200 KB
+                raise ValidationError("Obrazek nie może być większy niż 200KB.")
+
+    def __str__(self):
+        return f"{self.title} "
+
+
+class Rules(models.Model):
+    game_rules = models.TextField(null=True)
+    payment = models.TextField(null=True)
+    additional_info = models.TextField(null=True)
+
+
+
+    def __str__(self):
+        return "Zasady turnieju"
+
+
+class UserProfile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
+
+    phone = models.CharField(max_length=9, blank=True)
+
+    nottification_articles = models.BooleanField(default=True)
+    nottification_not_bet = models.BooleanField(default=True)
+
+    def __str__(self):
+        return f"Profil użytkownika: {self.user.username}"

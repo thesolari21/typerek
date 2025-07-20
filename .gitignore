@@ -1,8 +1,38 @@
+# Python
 *.pyc
+__pycache__/
+*.pyo
+*.pyd
 *~
-__pycache__
-myvenv
-db.sqlite3
-/static
-.DS_Store
+
+# Env
+venv/
+env/
+ENV/
+myvenv/
 .env
+
+# Django
+db.sqlite3
+/staticfiles/
+typerek/static/
+media/
+*.log
+
+# Editors
+.vscode/
+.idea/
+*.code-workspace
+
+# OS
+.DS_Store
+Thumbs.db
+ehthumbs.db
+
+# Testing
+htmlcov/
+.tox/
+.coverage
+*.cover
+.cache
+.pytest_cache/

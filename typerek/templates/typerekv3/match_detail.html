@@ -1,0 +1,260 @@
+{% extends 'typerekv3/base.html' %}
+{% load static %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+
+          <div class="row">
+            <div class="col-md-12 grid-margin">
+              <div class="row">
+                <div class="col-12 col-xl-8 mb-4 mb-xl-0">
+                  <h3 class="font-weight-bold">{{match.team_home_name}} - {{match.team_away_name}} <a class="text-primary" href="{% url 'league' lg=lg %}">[{{lg}}]</a> </h3>
+                  <h6 class="font-weight-normal mb-0">{{ match.date }}.  <span class="text-primary"> {% if match.multiplier > 1 %} Mnożymy punkty razy {{match.multiplier}}! {% else %} {% endif %} </span></h6>
+				  <h6 class="font-weight-normal mb-0">Status:  <span class="text-primary"> {% if bet.status == 2 %} Przeliczony {% elif bet.status == 1 %} Obstawiony {% else %} Do obstawienia {% endif %} </span></h6>
+                </div>
+              </div>
+            </div>
+          </div>
+			
+			<div class="row">
+            <div class="col-md-4 stretch-card grid-margin">
+			  <div class="card">
+				<div class="card-body">
+				  <p class="card-title mb-3">Wynik spotkania</p>
+				  
+				  <div class="d-flex flex-column align-items-center justify-content-center mb-4">
+				  {% if match.team_home_score == None or match.team_away_score == None%}
+				  <h1 class="display-2 font-weight-bold mb-2"> - </h1>
+				  {% else %}
+				<h1 class="display-2 font-weight-bold mb-2">{{ match.team_home_score }} - {{ match.team_away_score }}</h1>
+				  {% endif %}
+					<p class="display-5 text-muted mb-0">{{match.extra_bet_name}}: {% if match.extra_bet_result == None %} - {% else %} {{match.extra_bet_result}} {% endif %}</p>
+				  </div>
+
+				</div>
+			  </div>
+			</div>
+			 <div class="col-md-4 stretch-card grid-margin">
+			  <div class="card">
+				<div class="card-body">
+				  <p class="card-title mb-3">Twój typ</p>
+				  
+				  <div class="d-flex flex-column align-items-center justify-content-center mb-4">
+					<h1 class="display-2 font-weight-bold mb-2">{% if bet.team_home_score == None or bet.team_away_score == None %} - {% else %} {{bet.team_home_score}} - {{bet.team_away_score}} {% endif %}</h1>
+					<p class="display-5 text-muted mb-0">{{match.extra_bet_name}}: {% if bet.extra_bet == None %} - {% else %} {{bet.extra_bet}} {% endif %}</p>
+					{% if bet.joker == 1 %} <p class="display-5 text-muted mb-0"> Pewniaczek! </p> {% endif %}
+					
+				  </div>
+
+				</div>
+			  </div>
+			</div>
+
+			{% if can_bet  %}
+            <div class="col-md-4 grid-margin stretch-card">
+              <div class="card">
+                <div class="card-body">
+                  <h4 class="card-title">Obstaw!</h4>
+                  <p class="card-description">
+                    
+                  </p>
+                  <form method="POST" class="post-form"> {% csrf_token %}
+                    <div class="form-group row">
+                      <label for="form_home_name" class="col-sm-5 col-form-label">{{match.team_home_name}}</label>
+                      <div class="col-sm-6">
+                        {{ form.team_home_score|as_crispy_field }}	
+                      </div>
+					  <div class="help-block with-errors"></div>
+                    </div>
+                    <div class="form-group row">
+                      <label for="form_away_name" class="col-sm-5 col-form-label">{{match.team_away_name}}</label>
+                      <div class="col-sm-6">
+                        {{ form.team_away_score|as_crispy_field }}
+                      </div>
+					  <div class="help-block with-errors"></div>
+                    </div>
+                    <div class="form-group row">
+                      <label for="form_extra_bet_name" class="col-sm-5 col-form-label">{{match.extra_bet_name}}</label>
+                      <div class="col-sm-6">
+                        {{ form.extra_bet|as_crispy_field }}
+                      </div>
+					  <div class="help-block with-errors"></div>
+                    </div>
+					 <div class="form-group row">
+                      <label for="form_joker" class="col-sm-5 col-form-label">Pewniaczek</label>
+                      <div class="col-sm-6">
+                         {{ form.joker|as_crispy_field }}
+                      </div>
+					   <div class="help-block with-errors"></div>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary mr-2">Obstaw!</button>
+                   
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
+		  
+		  {% else %}
+		  
+		  
+			<div class="col-md-4 grid-margin stretch-card">
+              <div class="card">
+                <div class="card-body">
+                  <h4 class="card-title">Ups...</h4>
+                  <p class="card-description">
+                    Wygląda, że obstawianie jest już zakończone! Poniżej wszystkie typy dla tego meczu. 
+                  </p>
+                  
+                </div>
+              </div>
+            </div>
+			</div>
+			<div class="row">
+			<div class="col-md-12 stretch-card grid-margin">
+              <div class="card">
+                <div class="card-body">  
+
+				<div class="table-responsive">
+                    <table class="table table-borderless table-sm w-100">
+                      <thead>
+                        <tr>
+                          <th class="border-bottom pb-2" style="position: sticky; left: 0;  z-index: 2; background: white ">Gracz</th>
+                          <th class="border-bottom pb-2">Wynik</th>
+						  <th class="border-bottom pb-2">{{match.extra_bet_name}}</th>
+						  <th class="border-bottom pb-2">Pewniaczek</th>
+						  <th class="border-bottom pb-2">Punkty</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+					  
+					  {% for b in bet_all_users %}
+                        <tr>
+                          <td style="position: sticky; left: 0;  z-index: 1; background: white;"><p class="pl-0" >{{b.user}}</p></td>
+                          <td class="text-muted">{{b.team_home_score}} - {{b.team_away_score}}</td>
+						  <td class="text-muted">{% if b.extra_bet == None %} - {% else %} {{b.extra_bet}} {% endif %}</td>
+						  <td class="text-muted">{% if b.joker == 1 %} Tak {% else %} Nie {% endif %}</td>
+						  {% if b.status == 2 %}
+						  <td class="text-muted">{{b.total}}</td>
+						  {% endif %}
+                        </tr>
+						{% endfor %}
+                        
+                      </tbody>
+                    </table>
+                  </div>
+				  
+                </div>
+              </div>
+            </div>
+		    </div>
+			
+			{% endif %}
+		  
+		  	<div class="row">
+            <div class="col-md-12 stretch-card grid-margin">
+			  <div class="card">
+				<div class="card-body">
+				  <p class="card-title mb-3">Punkty za mecz</p>
+				  
+				   <div class="row">
+                <div class="col-md-2 mb-4 stretch-card transparent">
+				{% with result=bet.p_home_score|add:bet.p_away_score|add:bet.p_sum_goals %}
+				
+				{% if bet.status < 2 %}
+				<div class="card bg-light">
+				
+				{% elif bet.status == 2 and result == 0 %}
+                 <div class="card card-light-danger">
+				 
+				{% elif bet.status == 2 and result > 0 %}
+				  <div class="card bg-success">
+				{% endif %}
+				
+				
+                    <div class="card-body">
+                      <p class="mb-4">Bramki</p>
+					  <p class="fs-30 mb-2">{{ result }}{% endwith %} pkt</p>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-2 mb-4 stretch-card transparent">
+				
+				{% if bet.status < 2 %}
+				<div class="card bg-light">
+				
+				{% elif bet.status == 2 and bet.p_result == 0 %}
+                 <div class="card card-light-danger">
+				
+				{% elif bet.status == 2 and bet.p_result > 0 %}
+				  <div class="card bg-success">
+				{% endif %}
+				
+                    <div class="card-body">
+                      <p class="mb-4">Zwycięzca</p>
+					  <p class="fs-30 mb-2">{{bet.p_result}} pkt</p>
+                    </div>
+                  </div>
+                </div>
+				<div class="col-md-2 mb-4 stretch-card transparent">
+				
+				{% if bet.status < 2 %}
+				<div class="card bg-light">
+				
+				{% elif bet.status == 2 and bet.p_extra_bet == 0 %}
+                  <div class="card card-light-danger">
+				{% elif bet.status == 2 and bet.p_extra_bet > 0 %}
+				  <div class="card bg-success">
+				{% endif %}
+				
+                    <div class="card-body">
+                      <p class="mb-4">Prec. strzał</p>
+					  <p class="fs-30 mb-2">{{bet.p_extra_bet}} pkt</p>
+                    </div>
+                  </div>
+                </div>
+				<div class="col-md-2 mb-4 stretch-card transparent">
+				{% if bet.p_joker < 0 %}
+                  <div class="card card-light-danger">
+				{% elif bet.p_joker == 0 %}
+				   <div class="card bg-light">
+				{% elif bet.p_joker > 0%}
+				   <div class="card bg-success">
+				{% endif %}
+				
+                    <div class="card-body">
+                      <p class="mb-4">Pewniaczek</p>
+					  <p class="fs-30 mb-2">{{bet.p_joker}} pkt</p>
+                    </div>
+                  </div>
+                </div>
+				<div class="col-md-2 mb-4 stretch-card transparent">
+                  <div class="card bg-light">
+                    <div class="card-body">
+                      <p class="mb-4">Mnożnik</p>
+					  <p class="fs-30 mb-2 text-center">{{match.multiplier}}</p>
+                    </div>
+                  </div>
+                </div>
+				<div class="col-md-2 mb-4 stretch-card transparent">
+                  <div class="card card-dark-blue data-bs-toggle="tooltip" data-bs-placement="top" title="Algorytm: Łącznie = (bramki + zwycięzca + precyzyjny strzał + pewniaczek) * mnożnik">
+                    <div class="card-body">
+                      <p class="mb-4">Łącznie</p>
+					  <p class="fs-30 mb-2">{{bet.total}} pkt</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+				</div>
+			  </div>
+			</div>
+
+          </div>
+		  
+{% endblock %}
+		 
+			
+        
+

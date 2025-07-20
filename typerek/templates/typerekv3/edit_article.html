@@ -1,0 +1,53 @@
+{% extends 'typerekv3/base.html' %}
+{% load static %}
+{% load crispy_forms_tags %}
+
+
+{% block content %}
+
+        {% if access %}
+
+		<div class="row">
+            <div class="col-md-12 grid-margin">
+              <div class="row">
+                <div class="col-12 col-xl-8 mb-4 mb-xl-0">
+                  <h3 class="font-weight-bold">Edytuj artykuł</h3>
+                  <h6 >Autor: <span class="text-primary">{{article.author}}</span></h6>
+				  <h6 class="mb-0">Data modyfikacji: <span class="text-primary">{{article.update_date}}</span></h6>
+                </div>
+              </div>
+            </div>
+          </div>
+		<div class="row">
+			<div class="col-12 grid-margin stretch-card">
+              <div class="card">
+                <div class="row">
+                  <div class="col-md-12">
+
+                    <div class="card-body">
+                          <h6 class="mb-3">Opis możesz formatować jako markdown. Specyfikacja <a href="https://www.markdownguide.org/basic-syntax/"> <span class="text-primary"> TUTAJ </span> </a></h6>
+                      
+                      <form method="post" enctype="multipart/form-data">
+					{% csrf_token %}
+					
+					{{ form|crispy }}
+
+					
+					<button type="submit" class="btn btn-primary btn-rounded btn-fw">Zapisz zmiany</button>
+					</form>
+					  
+                    </div>
+                  </div>
+                 
+                </div>
+              </div>
+            </div>
+            
+          </div>
+
+            {% else %}
+            Brak dostępu
+            {%endif %}
+		  
+{% endblock %}
+	

@@ -1,0 +1,155 @@
+{% extends 'typerekv3/base.html' %}
+{% load static %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+
+          <div class="row">
+            <div class="col-md-12 grid-margin">
+              <div class="row">
+                <div class="col-12 col-xl-8 mb-4 mb-xl-0">
+                  <h3 class="font-weight-bold"> {{question.question}} <a class="text-primary" href="{% url 'league' lg=lg %}">[{{lg}}]</a> </h3>
+                  <h6 class="font-weight-normal mb-0"> {{question.date}} </h6>
+				  <h6 class="font-weight-normal mb-0">Status:  <span class="text-primary"> {% if answer.status == 2 %} Przeliczony {% elif answer.status == 1 %} Obstawiony {% else %} Do obstawienia {% endif %} </span></h6>
+                </div>
+              </div>
+            </div>
+          </div>
+			
+			<div class="row">
+            <div class="col-md-4 stretch-card grid-margin">
+			  <div class="card">
+				<div class="card-body">
+				  <p class="card-title mb-3">Odpowiedź</p>
+				  
+				  <div class="d-flex flex-column align-items-center justify-content-center mb-4">
+				  
+				  <h1 class="display-3 font-weight-bold mb-2"> {% if question.answer == None %} - {% else %} {{question.answer}} {% endif %} </h1>
+
+					<p class="display-5 text-muted mb-0"></p>
+				  </div>
+
+				</div>
+			  </div>
+			</div>
+			 <div class="col-md-4 stretch-card grid-margin">
+			  <div class="card">
+				<div class="card-body">
+				  <p class="card-title mb-3">Twój typ</p>
+				  
+				  <div class="d-flex flex-column align-items-center justify-content-center mb-4">
+					<h1 class="display-3 font-weight-bold mb-2">{% if answer.answer == None %} - {% else %} {{answer.answer}} {% endif %}</h1>
+					<p class="display-5 text-muted mb-0"></p>
+					
+				  </div>
+
+				</div>
+			  </div>
+			</div>
+
+			{% if can_bet  %}
+            <div class="col-md-4 grid-margin stretch-card">
+              <div class="card">
+                <div class="card-body">
+                  <h4 class="card-title">Obstaw!</h4>
+                  <p class="card-description">
+                    
+                  </p>
+                  <form method="POST" class="post-form"> {% csrf_token %}
+                    <div class="form-group row">
+                      <label for="form_home_name" class="col-sm-5 col-form-label">Twój typ</label>
+                      <div class="col-sm-6">
+                        {{ form.answer|as_crispy_field }}	
+                      </div>
+					  <div class="help-block with-errors"></div>
+                    </div>
+                 
+                    <button type="submit" class="btn btn-primary mr-2">Obstaw!</button>
+                   
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
+		  
+		  {% else %}
+		  
+		  
+			<div class="col-md-4 grid-margin stretch-card">
+              <div class="card">
+                <div class="card-body">
+                  <h4 class="card-title">Ups...</h4>
+                  <p class="card-description">
+                    Wygląda, że obstawianie jest już zakończone! Poniżej wszystkie typy dla tego meczu. 
+                  </p>
+                  
+                </div>
+              </div>
+            </div>
+			</div>
+			<div class="row">
+			<div class="col-md-12 stretch-card grid-margin">
+              <div class="card">
+                <div class="card-body">  
+
+				<div class="table-responsive">
+                    <table class="table table-borderless table-sm w-100">
+                      <thead>
+                        <tr>
+                          <th class="border-bottom pb-2" style="position: sticky; left: 0;  z-index: 2; background: white ">Gracz</th>
+                          <th class="border-bottom pb-2">Typ</th>
+						  <th class="border-bottom pb-2">Punkty</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+					  
+					  {% for b in bet_all_users %}
+                        <tr>
+                          <td style="position: sticky; left: 0;  z-index: 1; background: white;"><p class="pl-0" >{{b.user}}</p></td>
+                          <td class="text-muted">{{b.answer}}</td>
+						  {% if b.status == 2 %}
+						  <td class="text-muted">{{b.p_answer}}</td>
+						  {% endif %}
+                        </tr>
+						{% endfor %}
+                        
+                      </tbody>
+                    </table>
+                  </div>
+				  
+                </div>
+              </div>
+            </div>
+		    </div>
+			
+			{% endif %}
+		  
+		  	<div class="row">
+            <div class="col-md-12 stretch-card grid-margin">
+			  <div class="card">
+				<div class="card-body">
+				  <p class="card-title mb-3">Punkty za pytanie</p>
+				  
+				   <div class="row">
+                <div class="col-md-2 mb-4 stretch-card transparent">
+				
+					{% if answer.status < 2 %} <div class="card bg-light">
+					{% elif answer.p_answer == 0 and answer.status == 2 %} <div class="card card-light-danger">
+					{% elif answer.p_answer > 0 and answer.status == 2%}  <div class="card bg-success"> {% endif %}
+                    <div class="card-body">
+                      <p class="mb-4"></p>
+					  <p class="fs-30 mb-2">{{answer.p_answer}} pkt</p>
+					  </div>
+                    </div>
+                  </div>
+                </div>
+				
+			</div>
+
+          </div>
+		  
+{% endblock %}
+		 
+			
+        
+

@@ -1,0 +1,46 @@
+{% extends 'typerekv3/base.html' %}
+{% load static %}
+
+
+{% block content %}
+
+		<div class="row">
+            <div class="col-md-12 grid-margin">
+              <div class="row">
+                <div class="col-12 col-xl-8 mb-4 mb-xl-0">
+                  <h3 class="font-weight-bold">{{article.title}}</h3>
+                  <h6 >Autor: <span class="text-primary">{{article.author}}</span></h6>
+				  <h6 class="mb-0">Data modyfikacji: <span class="text-primary">{{article.update_date}}</span></h6>
+                </div>
+              </div>
+            </div>
+          </div>
+		
+		<div class="row">
+			<div class="col-12 grid-margin stretch-card">
+              <div class="card">
+                <div class="row">
+                  <div class="col-md-8">
+                    <div class="card-body">
+                      
+                      <p class="card-description|safe"> {{ article_html|safe }} </p>
+                     
+                    </div>
+                  </div>
+                  <div class="col-md-4">
+                    <div class="card-body">
+                       {% if article.image and article.image.url %}
+                                 <img src="{{ article.image.url }}" alt="aktualności" class="img-fluid">
+                                  {% else %}
+                                <img src="{% static 'typerekv3/images/dafault_image.jpg' %}" alt="brak obrazka" class="img-fluid">
+                                  {% endif %}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+          </div>
+		  
+{% endblock %}
+	

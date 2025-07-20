@@ -1,0 +1,145 @@
+{% extends 'typerekv3/base.html' %}
+{% load static %}
+
+
+{% block content %}
+
+<style>
+  .table-striped tbody tr:nth-of-type(odd) {
+    background-color: #e8f0fe; /* kolor 1 */
+  }
+
+  .table-striped tbody tr:nth-of-type(even) {
+    background-color: #d0e2ff; /* kolor 2 */
+  }
+</style>
+
+         <div class="row">
+            <div class="col-md-12 grid-margin">
+              <div class="row">
+                <div class="col-12 col-xl-8 mb-4 mb-xl-0">
+                  <h3 class="font-weight-bold">Ekstraklasa 25/26</h3>
+                  <h6 class="font-weight-normal mb-0">Tu zobaczysz klasyfikację generalną oraz wszystkie swoje obstawienia w lidze.</span></h6>
+                </div>
+              </div>
+            </div>
+          </div> 
+		 <div class="row">
+            <div class="col-md-12 grid-margin stretch-card">
+              <div class="card">
+                <div class="card-body">
+                  <p class="card-title">Klasyfikacja generalna</p>
+                  <div class="row">
+                    <div class="col-12">
+                      <div class="table-responsive">
+                        <table id="results" class=" expandable-table table-striped" style="width:100%">
+                          <thead>
+                            <tr>
+                              <th style="position: sticky; left: 0;  z-index: 2; ">Gracz</th>
+                              <th>Przeliczone mecze</th>
+                              <th>Trafiony wynik!</th>
+                              <th>[Suma] Punkty za mecze</th>
+                              <th>[Suma] Punkty za pytania do ligi</th>
+                              <th>Razem</th>
+                            </tr>
+                          </thead>
+						   <tbody>
+						   
+					{% for player in league_data %}
+
+    <tr>
+           <td>{{player.user__username}}</td>
+           <td>{{player.count_result}}</td>
+           <td>{{player.sum_excellent}}</td>
+           <td>{{player.sum_total}}</td>
+            <td>{{player.sum_answer}}</td>
+            <td>{{player.total_split }}</td>
+
+    </tr>
+    {% endfor %}
+               
+                </tbody>
+                      </table>
+					 
+                      </div>
+                    </div>
+                  </div>
+                  </div>
+                </div>
+              </div>	
+        </div>
+		
+		<div class="row">
+            <div class="col-md-12 stretch-card grid-margin">
+              <div class="card">
+                <div class="card-body">
+                  <p class="card-title mb-4">Twoje obstawione mecze w lidze</p>
+                  <div class="table-responsive">
+                    <table class="table table-borderless table-sm w-100">
+                      <thead>
+                        <tr>
+                          <th class="border-bottom pb-2" style="position: sticky; left: 0;  z-index: 2; background: white ">Mecz</th>
+                          <th class="border-bottom pb-2">Wynik końcowy</th>
+						  <th class="border-bottom pb-2">Twój typ</th>
+						  <th class="border-bottom pb-2">Pewniaczek</th>
+						  <th class="border-bottom pb-2">Punkty</th>
+						  <th class="border-bottom pb-2">Status</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+					  
+					  {% for match in matches_overall %}
+                        <tr>
+                          <td style="position: sticky; left: 0;  z-index: 1; background: white;"><a href="{% url 'match_detail' pk=match.match_id lg=lg %}"><p class="pl-0" >{{match.match_id__team_home_name}} - {{match.match_id__team_away_name}}</a></p></td>
+                          <td class="text-muted">{% if match.match_id__team_home_score == None or match.match_id__team_away_score == None %} - {% else %} {{match.match_id__team_home_score}} - {{match.match_id__team_away_score}} {% endif %}</td>
+						  <td class="text-muted">{% if match.team_home_score == None or match.team_away_score == None %} - {% else %} {{match.team_home_score}} - {{match.team_away_score}} {% endif %}</td>
+						  <td class="text-muted"><span class="font-weight-bold mr-2">{% if match.joker == 1 %} Tak {% else %} Nie {% endif %} </span></td>
+						  <td class="text-muted"><span class="font-weight-bold mr-2">{{match.total}}</span></td>
+						  <td class="text-muted">{% if match.status == 2 %} Przeliczone {% else %} Obstawione {% endif %}</td>
+                        </tr>
+						{% endfor %}
+                        
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+			<div class="col-md-12 stretch-card grid-margin">
+              <div class="card">
+                <div class="card-body">
+                  <p class="card-title mb-4">Twoje pytania do ligi</p>
+                  <div class="table-responsive">
+                    <table class="table table-borderless table-sm w-100">
+                      <thead>
+                        <tr>
+                          <th class="border-bottom pb-2" style="position: sticky; left: 0;  z-index: 2; background: white ">Pytanie</th>
+                          <th class="border-bottom pb-2">Wynik końcowy</th>
+						  <th class="border-bottom pb-2">Twój typ</th>
+						  <th class="border-bottom pb-2">Punkty</th>
+						  <th class="border-bottom pb-2">Status</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+					  
+					  {% for quest in questions_overall %}
+                        <tr>
+                          <td style="position: sticky; left: 0;  z-index: 1; background: white;"><p class="pl-0"><a href="{% url 'question_detail' pk=quest.question_id lg=lg %}">{{quest.question_id__question}}</a></p></td>
+                          <td class="text-muted">{% if quest.question_id__answer == None %} - {% else %} {{quest.question_id__answer}} {% endif %}</td>
+						  <td class="text-muted">{% if quest.answer == None %} - {% else %} {{quest.answer}} {% endif %}</td>
+						  <td class="text-muted"><span class="font-weight-bold mr-2">{{quest.p_answer}}</span></td>
+						  <td class="text-muted">{% if quest.status == 2 %} Przeliczone {% else %} Obstawione {% endif %}</td>
+                        </tr>
+					{% endfor %}
+                        
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+          </div>
+		  
+{% endblock %}
+	

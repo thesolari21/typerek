@@ -1,0 +1,133 @@
+{% extends 'typerekv3/base.html' %}
+{% load static %}
+
+
+{% block content %}
+
+
+         <div class="row">
+            <div class="col-md-12 grid-margin">
+              <div class="row">
+                <div class="col-12 col-xl-8 mb-4 mb-xl-0">
+                  <h3 class="font-weight-bold">Zasady</h3>
+                  <h6 class="font-weight-normal mb-0">Reguły gry, punktowanie, płatności i wszystkie inne regulacyjne kwestie.</span></h6>
+                </div>
+              </div>
+            </div>
+          </div> 
+		 <div class="row">
+            <div class="col-md-12 grid-margin stretch-card">
+              <div class="card">
+                <div class="card-body">
+                  <p class="card-title">Reguły gry</p>
+                  <div class="row">
+                    <div class="col-12">
+
+                        {{game_rules_html|safe}}
+
+                    </div>
+                  </div>
+                  </div>
+                </div>
+              </div>	
+        </div>
+		
+		<div class="row">
+            <div class="col-md-12 stretch-card grid-margin">
+              <div class="card">
+                <div class="card-body">
+                  <p class="card-title mb-4">Punktowanie</p>
+
+                       <div class="table-responsive pt-3">
+                    <table class="table table-bordered">
+                      <thead>
+                        <tr>
+                          <th>
+                            Poprawne obstawienie...
+                          </th>
+                          <th>
+                            Liczba punktów
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody>
+
+                        <tr>
+                          <td>
+                            bramek dla gospodarza
+                          </td>
+                          <td>
+                              {{p_home_score}}
+                          </td>
+                        </tr>
+                      <tr>
+                          <td>
+                            bramek dla gościa
+                          </td>
+                          <td>
+                              {{p_away_score}}
+                          </td>
+                        </tr>
+                       <tr>
+                          <td>
+                            sumy bramek w spotkaniu
+                          </td>
+                          <td>
+                            {{p_sum_goals}}
+                          </td>
+                        </tr>
+                       <tr>
+                          <td>
+                            rezultatu meczu (kto wygrał)
+                          </td>
+                          <td>
+                            {{p_result}}
+                          </td>
+                        </tr>
+                        <tr>
+                          <td>
+                            precyzyjnego strzału (pytanie z czapy dot. meczu)
+                          </td>
+                          <td>
+                              {{p_extra_bet}}
+                          </td>
+                        </tr>
+                        <tr>
+                          <td>
+                            pytania do ligi
+                          </td>
+                          <td>
+                            {{p_answer}}
+                          </td>
+                        </tr>
+                        <tr>
+                          <td>
+                            pewniaczka
+                          </td>
+                          <td>
+                            {{p_joker}} (lub -{{p_joker}} jeśli nie trafisz)
+                          </td>
+                        </tr>
+
+                      </tbody>
+                    </table>
+                  </div>
+
+                </div>
+              </div>
+            </div>
+			<div class="col-md-12 stretch-card grid-margin">
+              <div class="card">
+                <div class="card-body">
+                  <p class="card-title mb-4">Płatności</p>
+
+                    {{payment_html|safe}}
+
+                </div>
+              </div>
+            </div>
+            
+          </div>
+		  
+{% endblock %}
+	

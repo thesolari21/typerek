@@ -3,6 +3,13 @@ from django.db.models import Sum
 from .models import Bets
 from .models import Answers
 from .models import Conf
+from .models import Articles
+from .models import Matches
+from .models import Questions
+from .models import Rules
+from django.contrib.auth.models import User
+from .models import UserProfile
+from easymde.fields import EasyMDEEditor
 
 class BetForm(forms.ModelForm):
 
@@ -42,7 +49,7 @@ class BetForm(forms.ModelForm):
         print(used_jokers)
 
         if used_jokers + joker > max_jokers:
-            raise forms.ValidationError(f'Przekroczono limit jokerów ({max_jokers}).')
+            raise forms.ValidationError(f'Przekroczono limit pewniaczków ({max_jokers}). Aby sprawdzić gdzie dałeś pewniaczki wejdź w daną ligę i przejrzyj swoje mecze.')
         return joker
 
     def save(self, commit=True):
@@ -84,3 +91,156 @@ class AnswerForm(forms.ModelForm):
             instance.save()
 
         return instance
+
+
+class ArticleForm(forms.ModelForm):
+    description = forms.CharField(label='Opis', widget=EasyMDEEditor(attrs={'style': 'width: 100%;'}))
+
+    class Meta:
+        model = Articles
+        fields = ['title', 'description', 'category', 'status', 'image']
+        labels = {
+            'title': 'Tytuł',
+            'description': 'Opis',
+            'category': 'Kategoria',
+            'status': 'Status',
+            'image': 'Obrazek',
+        }
+        widgets = {
+            'description': EasyMDEEditor(),
+        }
+
+
+    def clean_image(self):
+        image = self.cleaned_data.get('image')
+        if image and image.size > 200 * 1024:
+            raise forms.ValidationError("Obrazek nie może być większy niż 200KB.")
+        return image
+
+class MatchForm(forms.ModelForm):
+    class Meta:
+        model = Matches
+        fields = [
+            'date',
+            'team_home_name',
+            'team_away_name',
+            'team_home_score',
+            'team_away_score',
+            'multiplier',
+            'league',
+            'extra_bet_name',
+            'extra_bet_result',
+            'status'
+
+            ]
+
+        labels = {
+            'team_home_name': 'Nazwa gospodarz',
+            'team_away_name': 'Nazwa gość',
+            'team_home_score': 'Bramki gospodarz',
+            'team_away_score': 'Bramki gość',
+            'multiplier': 'Mnożnik',
+            'league': 'Liga',
+            'extra_bet_name': 'Szybki strzał',
+            'extra_bet_result': 'Szybki strzał wynik',
+            'status': 'Status'
+        }
+
+        widgets = {
+            'date': forms.DateTimeInput(
+                attrs={'type': 'datetime-local'},
+                format='%Y-%m-%dT%H:%M'
+            ),
+        }
+
+class QuestionForm(forms.ModelForm):
+    class Meta:
+        model = Questions
+        fields = [
+            'date',
+            'question',
+            'choice_list',
+            'league',
+            'answer',
+            'status',
+
+            ]
+
+        labels = {
+            'date': 'Data',
+            'question': 'Pytanie',
+            'choice_list': 'Dozwolone odpowiedzi',
+            'league': 'Liga',
+            'answer': 'Odpowiedź',
+            'status': 'Status',
+
+        }
+
+        widgets = {
+            'date': forms.DateTimeInput(
+                attrs={'type': 'datetime-local'},
+                format='%Y-%m-%dT%H:%M'
+            ),
+        }
+
+
+class RulesForm(forms.ModelForm):
+    game_rules = forms.CharField(label='Zasady gry', widget=EasyMDEEditor(attrs={'style': 'width: 100%;'}))
+    payment = forms.CharField(label='Płatność', widget=EasyMDEEditor(attrs={'style': 'width: 100%;'}))
+
+    class Meta:
+        model = Rules
+        fields = ['game_rules', 'payment', 'additional_info']
+        labels = {
+            'game_rules': 'Zasady gry',
+            'payment': 'Płatność',
+            'additional_info': 'Dodatkowe info',
+
+        }
+        widgets = {
+            'game_rules': EasyMDEEditor(),
+            'payment': EasyMDEEditor(),
+        }
+
+class UserForm(forms.ModelForm):
+    class Meta:
+        model = User
+        fields = ['username', 'email']
+
+class UserProfileForm(forms.ModelForm):
+    class Meta:
+        model = UserProfile
+        fields = ['phone', 'nottification_articles', 'nottification_not_bet']
+        labels = {
+            'phone': 'Telefon',
+            'nottification_articles': 'Otrzymuj powiadomienia o aktualnościach (musisz podać maila)',
+            'nottification_not_bet': 'Otrzymuj powiadomienia o nieobstawionych meczach (musisz podać maila)',
+        }
+
+class PasswordChangeInlineForm(forms.Form):
+    old_password = forms.CharField(
+        label='Stare hasło',
+        widget=forms.PasswordInput,
+        required=False
+    )
+    new_password1 = forms.CharField(
+        label='Nowe hasło',
+        widget=forms.PasswordInput,
+        required=False
+    )
+    new_password2 = forms.CharField(
+        label='Powtórz nowe hasło',
+        widget=forms.PasswordInput,
+        required=False
+    )
+
+    def clean(self):
+        cleaned_data = super().clean()
+        new_password1 = cleaned_data.get('new_password1')
+        new_password2 = cleaned_data.get('new_password2')
+
+        if new_password1 or new_password2:
+            if new_password1 != new_password2:
+                self.add_error('new_password2', 'Hasła nie są takie same')
+
+        return cleaned_data
