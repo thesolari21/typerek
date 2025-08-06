@@ -31,8 +31,8 @@
     <!-- partial:partials/_navbar.html -->
     <nav class="navbar col-lg-12 col-12 p-0 fixed-top d-flex flex-row">
       <div class="text-center navbar-brand-wrapper d-flex align-items-center justify-content-center">
-        <a class="navbar-brand brand-logo mr-5" href="{% url 'match' %}"><img src="{% static 'typerekv3/images/logo.jpg' %}" class="mr-2" alt="logo"/></a>
-        <a class="navbar-brand brand-logo-mini" href="{% url 'match' %}"><img src="{% static 'typerekv3/images/logo-mini.jpg' %}" alt="logo"/></a>
+        <a class="navbar-brand brand-logo mr-5" href="{% url 'typerek:match' %}"><img src="{% static 'typerekv3/images/logo.jpg' %}" class="mr-2" alt="logo"/></a>
+        <a class="navbar-brand brand-logo-mini" href="{% url 'typerek:match' %}"><img src="{% static 'typerekv3/images/logo-mini.jpg' %}" alt="logo"/></a>
       </div>
 	  <div class="navbar-menu-wrapper d-flex align-items-center justify-content-end">
         <button class="navbar-toggler navbar-toggler align-self-center" type="button" data-toggle="minimize">
@@ -50,7 +50,7 @@
       <nav class="sidebar sidebar-offcanvas" id="sidebar">
         <ul class="nav">
           <li class="nav-item">
-            <a class="nav-link" href="{% url 'match' %}">
+            <a class="nav-link" href="{% url 'typerek:match' %}">
               <i class="icon-grid menu-icon"></i>
               <span class="menu-title">Strona główna</span>
             </a>
@@ -62,11 +62,25 @@
               <i class="menu-arrow"></i>
             </a>
             <div class="collapse" id="ui-basic">
-              <ul class="nav flex-column sub-menu">
-			  {% for userleague in usersleagues %}
-                <li class="nav-item"> <a class="nav-link" href="{% url 'league' lg=userleague.league %}" style="color:white;">{{userleague.league}}</a></li>
+
+              {% if active_leagues %}
+
+              <ul class="nav flex-column sub-menu" style="color:white;"> AKTYWNE
+			  {% for userleague in active_leagues %}
+                <li class="nav-item"> <a class="nav-link" href="{% url 'typerek:league' lg=userleague.league %}" style="color:white;">{{userleague.league}}</a></li>
                {% endfor %} 
               </ul>
+              {% endif %}
+
+              {% if archived_leagues %}
+
+              <ul class="nav flex-column sub-menu" style="color:white;">ARCHIWALNE
+			  {% for userleague in archived_leagues %}
+                <li class="nav-item"> <a class="nav-link" href="{% url 'typerek:league' lg=userleague.league %}" style="color:white;">{{userleague.league}}</a></li>
+               {% endfor %}
+              </ul>
+              {% endif %}
+
             </div>
           </li>
           <li class="nav-item">
@@ -77,7 +91,7 @@
             </a>
 			  <div class="collapse" id="form-elements">
               <ul class="nav flex-column sub-menu">
-                <li class="nav-item"> <a class="nav-link" href="{% url 'rules' %}">Regulamin</a></li>
+                <li class="nav-item"> <a class="nav-link" href="{% url 'typerek:rules' %}">Regulamin</a></li>
                 <li class="nav-item"> <a class="nav-link" href="{% static 'typerekv3/pages/ui-features/typography.html' %}">Tutorial na YT</a></li>
               </ul>
             </div>
@@ -90,9 +104,9 @@
       </a>
       <div class="collapse" id="articles-menu">
         <ul class="nav flex-column sub-menu">
-          <li class="nav-item"><a class="nav-link" href="{% url 'articles' %}?category=Aktualnosci">Aktualności</a></li>
-          <li class="nav-item"><a class="nav-link" href="{% url 'articles' %}?category=Raport_kolejki">Raport kolejki</a></li>
-          <li class="nav-item"><a class="nav-link" href="{% url 'articles' %}?category=Historyczne_ligi">Historyczne ligi</a></li>
+          <li class="nav-item"><a class="nav-link" href="{% url 'typerek:articles' %}?category=Aktualnosci">Aktualności</a></li>
+          <li class="nav-item"><a class="nav-link" href="{% url 'typerek:articles' %}?category=Raport_kolejki">Raport kolejki</a></li>
+          <li class="nav-item"><a class="nav-link" href="{% url 'typerek:articles' %}?category=Historyczne_ligi">Historyczne ligi</a></li>
         </ul>
       </div>
     </li>
@@ -108,16 +122,16 @@
         <div class="collapse" id="editor-panel">
           <ul class="nav flex-column sub-menu">
             <li class="nav-item">
-              <a class="nav-link" href="{% url 'articles' %}">Edytuj artykuły</a>
+              <a class="nav-link" href="{% url 'typerek:articles' %}">Edytuj artykuły</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="{% url 'list_of_all_matches' %}">Edytuj mecze</a>
+              <a class="nav-link" href="{% url 'typerek:list_of_all_matches' %}">Edytuj mecze</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="{% url 'list_of_all_questions' %}">Edytuj pytania</a>
+              <a class="nav-link" href="{% url 'typerek:list_of_all_questions' %}">Edytuj pytania</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="{% url 'edit_rules' %}">Edytuj regulamin</a>
+              <a class="nav-link" href="{% url 'typerek:edit_rules' %}">Edytuj regulamin</a>
             </li>
           </ul>
         </div>
@@ -126,7 +140,7 @@
 
            {% if user.is_authenticated %}
           <li class="nav-item">
-            <a class="nav-link" href="{% url 'edit_user_profile' %}">
+            <a class="nav-link" href="{% url 'typerek:edit_user_profile' %}">
               <i class="icon-head menu-icon"></i>
               <span class="menu-title">Moje konto</span>
             </a>
@@ -135,14 +149,14 @@
 		  
 		  {% if user.is_authenticated %}
           <li class="nav-item">
-            <a class="nav-link" href="{% url 'logout_page' %}">
+            <a class="nav-link" href="{% url 'typerek:logout_page' %}">
               <i class="icon-esc menu-icon"></i>
               <span class="menu-title">Wyloguj</span>
             </a>
           </li>
 		  {% else %}
 		  <li class="nav-item">
-			<a class="nav-link" href="{% url 'login_page' %}">
+			<a class="nav-link" href="{% url 'typerek:login_page' %}">
               <i class="icon-alt menu-icon"></i>
               <span class="menu-title">Zaloguj</span>
             </a>

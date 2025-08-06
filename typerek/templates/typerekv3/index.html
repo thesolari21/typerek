@@ -8,7 +8,7 @@
             <div class="col-md-12 grid-margin">
               <div class="row">
                 <div class="col-12 col-xl-8 mb-4 mb-xl-0">
-                  <h3 class="font-weight-bold">Witaj Solari</h3>
+                  <h3 class="font-weight-bold">Witaj {% if request.user.is_authenticated %} {{ user.username }} {% endif %}</h3>
                   <h6 class="font-weight-normal mb-0">Udanej zabawy! Masz <span class="text-primary">{{ count_not_bet }}
                   {% if count_not_bet == 0 %} meczy {% elif count_not_bet == 1 %} mecz {% elif count_not_bet > 1 and count_not_bet <= 4 %} mecze {% elif count_not_bet > 4 %} meczy {% endif %} </span> do obstawienia!</h6>
                 </div>
@@ -29,7 +29,7 @@
                           <div class="col-md-12 col-xl-9 d-flex flex-column justify-content-start">
                             <div class="ml-xl-4 mt-3">
                             <p class="card-title">Artykuły</p>
-                                <a href = "{% url 'article_detail' article_id=article.id %}" style="text-decoration: none; color: inherit;">
+                                <a href = "{% url 'typerek:article_detail' article_id=article.id %}" style="text-decoration: none; color: inherit;">
                                     <h3 class="font-weight-500 mb-xl-4 text-primary">{{ article.title }}</h3>
                               <p class="mb-2 mb-xl-0">
 							   {{ article.teaser }}
@@ -90,11 +90,13 @@
 					  {% for match in matches %}
                         <tr>
                           <td>{{match.date}}</td>
-                          <td class="font-weight-bold"><a href="{% url 'match_detail' pk=match.pk lg=match.league %}">{{match}}</a></td>
+                          <td class="font-weight-bold"><a href="{% url 'typerek:match_detail' pk=match.pk lg=match.league %}">{{match}}</a></td>
                           <td>{{match.league}}</td>
 						  <td>{{match.multiplier}}</td>
-						  {% if match.status == 1 or match.status == 2%}
+						  {% if match.status == 1 %}
                           <td class="font-weight-medium"><div class="badge badge-success">Obstawiony</div></td>
+                            {% elif match.status == 2%}
+                          <td class="font-weight-medium"><div class="badge badge-info">Przeliczony</div></td>
 						  {% else %}
 						  <td class="font-weight-medium"><div class="badge badge-warning">Brak typu</div></td>
 						  {% endif %}
@@ -109,7 +111,7 @@
 				  <div class="d-block d-md-none">
 
 					{% for match in matches %}
-				  <a href="{% url 'match_detail' pk=match.pk lg=match.league %}" style="text-decoration: none; color: inherit;">
+				  <a href="{% url 'typerek:match_detail' pk=match.pk lg=match.league %}" style="text-decoration: none; color: inherit;">
 				  <div class="card mb-2 p-2">
 					<div class="d-flex justify-content-between align-items-center">
 					  <div>
@@ -161,7 +163,7 @@
 					  {% for question in questions %}
                         <tr>
                           <td>{{question.date}}</td>
-                          <td class="font-weight-bold"><a href="{% url 'question_detail' pk=question.pk lg=question.league %}">{{question.question}}</a></td>
+                          <td class="font-weight-bold"><a href="{% url 'typerek:question_detail' pk=question.pk lg=question.league %}">{{question.question}}</a></td>
                           <td>{{question.league}}</td>
 						   {% if question.status == 1 or question.status == 2%}
                           <td class="font-weight-medium"><div class="badge badge-success">Obstawiony</div></td>
@@ -180,7 +182,7 @@
 				  <div class="d-block d-md-none">
 				  
 				  {% for question in questions %}
-				  <a href="{% url 'question_detail' pk=question.pk lg=question.league %}" style="text-decoration: none; color: inherit;">
+				  <a href="{% url 'typerek:question_detail' pk=question.pk lg=question.league %}" style="text-decoration: none; color: inherit;">
 				  <div class="card mb-2 p-2">
 					<div class="d-flex justify-content-between align-items-center">
 					  <div>

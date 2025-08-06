@@ -1,6 +1,8 @@
 from django.urls import path
 from . import views
 
+app_name = 'typerek'
+
 urlpatterns = [
     path('', views.match, name='match'),
     path('match/<str:lg>/<int:pk>/',views.match_detail, name='match_detail'),
@@ -21,6 +23,7 @@ urlpatterns = [
     path('list_of_all_questions/add/', views.add_question, name='add_question'),
     path('rules/edit/', views.edit_rules, name='edit_rules'),
     path('edit_user_profile', views.edit_user_profile, name='edit_user_profile'),
+    path('user/<str:username>/', views.display_user, name='display_user'),
 
 
 ]

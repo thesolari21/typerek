@@ -16,7 +16,7 @@
                     </span></h6>
                 </div>
                   <div class="col-md-4 mb-4 mb-xl-0 d-flex justify-content-end align-items-start">
-                      <a href="{% url 'add_article' %}" style="color: inherit; text-decoration: none;"><button type="button" class="btn btn-primary btn-rounded btn-fw">Dodaj nowy </button> </a> {% endif %}
+                      <a href="{% url 'typerek:add_article' %}" style="color: inherit; text-decoration: none;"><button type="button" class="btn btn-primary btn-rounded btn-fw">Dodaj nowy </button> </a> {% endif %}
                     </div>
               </div>
             </div>
@@ -44,12 +44,12 @@
 					  
 						{% for article in articles %}
 						<tr>
-						<td style="position: sticky; left: 0;  z-index: 1; background: white;"><p class="pl-0"><a href="{% url 'article_detail' article.id %}">{{article.title}}</a></td>
+						<td style="position: sticky; left: 0;  z-index: 1; background: white;"><p class="pl-0"><a href="{% url 'typerek:article_detail' article.id %}">{{article.title}}</a></td>
 						<td class="text-muted">{{article.author}}</td>
 						<td class="text-muted">{{article.update_date}}</td>
                         {% if access and category_name is NONE %}
                             <td class="text-muted"> {{article.category}} </td>
-                            <td class="text-muted"> <a href="{% url 'edit_article' article.id %}"> Edytuj </a> </td> {% endif %}
+                            <td class="text-muted"> <a href="{% url 'typerek:edit_article' article.id %}"> Edytuj </a> </td> {% endif %}
 						</tr>
 						{% endfor %}
                         

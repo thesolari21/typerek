@@ -16,7 +16,7 @@
                     </span></h6>
                 </div>
                   <div class="col-md-4 mb-4 mb-xl-0 d-flex justify-content-end align-items-start">
-                      <a href="{% url 'add_match' %}" style="color: inherit; text-decoration: none;"" style="color: inherit; text-decoration: none;"><button type="button" class="btn btn-primary btn-rounded btn-fw">Dodaj nowy </button> </a> {% endif %}
+                      <a href="{% url 'typerek:add_match' %}" style="color: inherit; text-decoration: none;"" style="color: inherit; text-decoration: none;"><button type="button" class="btn btn-primary btn-rounded btn-fw">Dodaj nowy </button> </a> {% endif %}
                     </div>
               </div>
             </div>
@@ -49,7 +49,7 @@
 						<td class="text-muted">{{match.date}}</td>
                             <td class="text-muted"> {{match.multiplier}} </td>
                              {% if access %}
-                            <td class="text-muted"> <a href="{% url 'edit_match' match.id %}"> Edytuj </a> </td> {% endif %}
+                            <td class="text-muted"> <a href="{% url 'typerek:edit_match' match.id %}"> Edytuj </a> </td> {% endif %}
 						</tr>
 						{% endfor %}
                         

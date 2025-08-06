@@ -49,7 +49,7 @@ class BetForm(forms.ModelForm):
         print(used_jokers)
 
         if used_jokers + joker > max_jokers:
-            raise forms.ValidationError(f'Przekroczono limit pewniaczków ({max_jokers}). Aby sprawdzić gdzie dałeś pewniaczki wejdź w daną ligę i przejrzyj swoje mecze.')
+            raise forms.ValidationError(f'Przekroczono limit pewniaczków ({max_jokers}).')
         return joker
 
     def save(self, commit=True):
@@ -210,11 +210,16 @@ class UserForm(forms.ModelForm):
 class UserProfileForm(forms.ModelForm):
     class Meta:
         model = UserProfile
-        fields = ['phone', 'nottification_articles', 'nottification_not_bet']
+        fields = [ 'nottification_articles', 'nottification_not_bet', 'favourite_club', 'short_info', 'bet_tactic', 'birth_year', 'image']
         labels = {
-            'phone': 'Telefon',
             'nottification_articles': 'Otrzymuj powiadomienia o aktualnościach (musisz podać maila)',
             'nottification_not_bet': 'Otrzymuj powiadomienia o nieobstawionych meczach (musisz podać maila)',
+            'favourite_club': 'Ulubiony klub',
+            'short_info': 'O Tobie',
+            'bet_tactic': 'Typerska dewiza (jak obstawiasz mecze)',
+            'birth_year': 'Rok urodzenia',
+            'image': 'Twoja grafika'
+
         }
 
 class PasswordChangeInlineForm(forms.Form):

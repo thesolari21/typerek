@@ -22,7 +22,7 @@ from django.conf.urls.static import static
 urlpatterns = [
 
     path('admin/', admin.site.urls),
-    path('typerek/', include('typerek.urls') ),
+    path('typerek/', include('typerek.urls' , namespace='typerek') ),
     path('reset-password', PasswordResetView.as_view(), name='password_reset'),
     path('reset-password/done', PasswordResetDoneView.as_view(), name='password_reset_done'),
     path('reset-password/confirm/<uidb64>[0-9A-Za-z]+)-<token>/', PasswordResetConfirmView.as_view(), name='password_reset_confirm'),

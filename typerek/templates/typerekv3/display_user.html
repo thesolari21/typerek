@@ -1,0 +1,119 @@
+{% extends 'typerekv3/base.html' %}
+{% load static %}
+
+
+{% block content %}
+
+
+         <div class="row">
+            <div class="col-md-12 grid-margin">
+              <div class="row">
+                <div class="col-12 col-xl-8 mb-4 mb-xl-0">
+                  <h3 class="font-weight-bold">{{user.username}}</h3>
+                    {% if user_profile.short_info %}
+                  <h6 class="font-weight-normal mb-0">{{user_profile.short_info}}</span></h6>
+                    {% else %} <h6 class="font-weight-normal mb-0"> brak opisu </h6> {% endif %}
+                </div>
+              </div>
+            </div>
+          </div>
+
+        <div class="row">
+            <div class="col-md-3 stretch-card grid-margin">
+			  <div class="card">
+				<div class="card-body">
+				  <p class="card-title mb-3">Logo</p>
+                    {% if user_profile.image %}
+                    <img src="{{user_profile.image.url}}" alt="user_logo" class="img-fluid">
+                    {% else %}
+                    <img src="{% static 'typerekv3/images/default_user.jpg' %}" alt="user_logo" class="img-fluid">
+                    {% endif %}
+
+				</div>
+			  </div>
+			</div>
+
+            <div class="col-md-3 stretch-card grid-margin">
+			  <div class="card">
+				<div class="card-body">
+				  <p class="card-title mb-3">Dane zawodnika</p>
+
+                    <div class="table-responsive">
+                    <table class="table">
+
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <td>Wiek:</td>
+                            {% if user_profile.age %}
+                          <td>{{user_profile.age}}</td>
+                            {% else %} <td>-</td> {% endif %}
+
+                        </tr>
+                        <tr>
+                          <td>Ulubiony klub</td>
+                            {% if user_profile.favourite_club %}
+                          <td>{{user_profile.favourite_club}}</td>
+                            {% else %} <td>-</td> {% endif %}
+
+                        </tr>
+
+                      <tr>
+                          <td>Typerska dewiza</td>
+                            {% if user_profile.bet_tactic %}
+                          <td>{{user_profile.bet_tactic}}</td>
+                            {% else %} <td>-</td> {% endif %}
+
+                        </tr>
+
+                      </tbody>
+                    </table>
+                  </div>
+
+				</div>
+			  </div>
+			</div>
+
+            <div class="col-md-6 stretch-card grid-margin">
+			  <div class="card">
+				<div class="card-body">
+				  <p class="card-title mb-3">Ligi zawodnika</p>
+
+                 <div class="table-responsive">
+                    <table class="table">
+                      <thead>
+                        <tr>
+                          <th>Nazwa</th>
+                          <th>Status</th>
+                          <th>Punkty mecze</th>
+                            <th>Punkty pytania</th>
+                            <th>Suma punktów</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+
+                      {% for league in leagues_data %}  <tr>
+                          <td>{{ league.name }}</td>
+                          {% if league.status == 1 %} <td><label class="badge badge-success">Aktywna</label></td>
+                          {% elif league.status == 2 %} <td><label class="badge badge-danger">Archiwalna</label></td>
+                          {% else %} <td><label class="badge badge-warning">Draft</label></td>  {% endif %}
+                          <td class="table text-center">{{ league.bets_points }}</td>
+                          <td class="table text-center">{{ league.answers_points }}</td>
+                          <td class="table text-center">{{ league.total_points }}</td>
+
+                        </tr>
+                      {% endfor %}
+
+                      </tbody>
+                    </table>
+                  </div>
+
+				</div>
+			  </div>
+			</div>
+
+        </div>
+
+		  
+{% endblock %}
+	

@@ -6,6 +6,7 @@ from django.contrib.auth.models import User
 from django.conf import settings
 from django.core.validators import FileExtensionValidator
 from django.core.exceptions import ValidationError
+import datetime
 
 
 class Conf(models.Model):
@@ -17,7 +18,7 @@ class Conf(models.Model):
 
 class League(models.Model):
     name = models.CharField(max_length=30)
-    status = models.PositiveIntegerField(default=0, help_text="0 - Nieaktywna, 1 - Aktywna (pokaż userowi)")
+    status = models.PositiveIntegerField(default=0, help_text="0 - Nieaktywna, 1 - Aktywna (pokaż userowi), 2 - Archiwalna (pokaż userowi)")
 
     def __str__(self):
         return f"{self.name}"
@@ -39,8 +40,8 @@ class Matches(models.Model):
 
 class Questions(models.Model):
     date = models.DateTimeField()
-    question = models.CharField(max_length=30)
-    choice_list = models.CharField(max_length=100)
+    question = models.CharField(max_length=200)
+    choice_list = models.CharField(max_length=200)
     league = models.ForeignKey(League, on_delete=models.CASCADE)
     answer = models.CharField(max_length=30, null=True, blank=True)
     status = models.IntegerField(null=True, blank=True, default=0, help_text="0 - Otwarty, 1 - Zakończony (uwzg. przy przel.)")
@@ -129,10 +130,34 @@ class Rules(models.Model):
 class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
 
-    phone = models.CharField(max_length=9, blank=True)
-
     nottification_articles = models.BooleanField(default=True)
     nottification_not_bet = models.BooleanField(default=True)
+    favourite_club = models.CharField(max_length=50, null=True, blank=True)
+    short_info = models.CharField(max_length=100, null=True, blank=True, help_text="max 100 znaków")
+    bet_tactic = models.CharField(max_length=100, null=True, blank=True, help_text="max 100 znaków")
+    birth_year = models.IntegerField(null=True, blank=True)
+    image = models.ImageField(
+        upload_to='image_users/',
+        null=True,
+        blank=True,
+        validators=[
+            FileExtensionValidator(allowed_extensions=['jpg', 'jpeg', 'png', 'gif'])
+        ],
+        help_text="Maksymalny rozmiar: 200KB. Dozwolone formaty: jpg, jpeg, png, gif.")
+
+    #właściwość, dynamicznie wylicza wiek, pozniej to uzywam w szablonie
+    @property
+    def age(self):
+        if self.birth_year:
+            today = datetime.date.today()
+            return today.year - self.birth_year
+        return None
+
+    def clean(self):
+        if self.image:
+            if self.image.size > 200 * 1024:  # 200 KB
+                raise ValidationError("Obrazek nie może być większy niż 200KB.")
+
 
     def __str__(self):
         return f"Profil użytkownika: {self.user.username}"

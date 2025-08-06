@@ -39,7 +39,7 @@ def login_page(request):
             if request.POST.get('redir'):
                 return redirect(f"{request.POST.get('redir')}")
             else:
-                return redirect('match')
+                return redirect('typerek:match')
         else:
             context['error'] = 'Podane hasło lub login są błędne! Podaj poprawne dane.'
             if request.POST.get('redir'):
@@ -54,7 +54,7 @@ def login_page(request):
 
 def logout_page(request):
     auth.logout(request)
-    return redirect('match')
+    return redirect('typerek:match')
 
 def rules(request):
     max_jokers = Conf.objects.get(name='max_jokers').value
@@ -84,7 +84,7 @@ def edit_rules(request):
         form = RulesForm(request.POST, request.FILES, instance=rules)
         if form.is_valid():
             form.save()
-            return redirect('rules')
+            return redirect('typerek:rules')
     else:
         form = RulesForm(instance=rules)
 
@@ -139,6 +139,7 @@ def match(request):
 
     for article in articles:
         article.teaser = markdown_to_text(article.description)[:300]
+        article.teaser = article.teaser + "...  -> czytaj dalej"
 
 
 
@@ -181,7 +182,11 @@ def match_detail(request, pk, lg):
     # Pobierz typy wszystkich graczy (uwzglednij obstawione i przeliczone)
     bet_all_users = Bets.objects.filter(match_id=pk, status__in=[1,2])
 
-    return render(request, 'typerekv3/match_detail.html', {'match':match , 'bet':bet, 'form': form, 'can_bet':can_bet, 'bet_all_users':bet_all_users, 'lg':lg } )
+    # Policz wszystkie wykorzystane jokery
+    used_jokers = Bets.objects.filter(user=request.user.id, match_id__league=league_id).exclude(joker=None).aggregate(Sum('joker'))['joker__sum'] or 0
+    max_jokers = Conf.objects.get(name='max_jokers').value
+
+    return render(request, 'typerekv3/match_detail.html', {'match':match , 'bet':bet, 'form': form, 'can_bet':can_bet, 'bet_all_users':bet_all_users, 'lg':lg, 'used_jokers':used_jokers, 'max_jokers':max_jokers } )
 
 # uzupelnianie odpowiedzi na pytanie do ligi
 @login_required
@@ -339,7 +344,7 @@ def edit_article(request, article_id):
         form = ArticleForm(request.POST, request.FILES, instance=article)
         if form.is_valid():
             form.save()
-            return redirect('articles')
+            return redirect('typerek:articles')
     else:
         form = ArticleForm(instance=article)
 
@@ -354,7 +359,7 @@ def add_article(request):
             article.author = request.user  # jeśli masz pole author
             article.status = 1  # np. aktywny artykuł
             article.save()
-            return redirect('articles')
+            return redirect('typerek:articles')
     else:
         form = ArticleForm()
 
@@ -374,7 +379,7 @@ def edit_match(request, match_id):
         form = MatchForm(request.POST, instance=match)
         if form.is_valid():
             form.save()
-            return redirect('list_of_all_matches')
+            return redirect('typerek:list_of_all_matches')
     else:
         form = MatchForm(instance=match)
 
@@ -387,7 +392,7 @@ def add_match(request):
         if form.is_valid():
             match = form.save(commit=False)
             match.save()
-            return redirect('list_of_all_matches')
+            return redirect('typerek:list_of_all_matches')
     else:
         form = MatchForm()
 
@@ -408,7 +413,7 @@ def edit_question(request, question_id):
         form = QuestionForm(request.POST, instance=question)
         if form.is_valid():
             form.save()
-            return redirect('list_of_all_questions')
+            return redirect('typerek:list_of_all_questions')
     else:
         form = QuestionForm(instance=question)
 
@@ -421,7 +426,7 @@ def add_question(request):
         if form.is_valid():
             question = form.save(commit=False)
             question.save()
-            return redirect('list_of_all_questions')
+            return redirect('typerek:list_of_all_questions')
     else:
         form = QuestionForm()
 
@@ -437,7 +442,7 @@ def edit_user_profile(request):
 
     if request.method == 'POST':
         user_form = UserForm(request.POST, instance=user)
-        profile_form = UserProfileForm(request.POST, instance=profile)
+        profile_form = UserProfileForm(request.POST, request.FILES, instance=profile)
         password_form = PasswordChangeInlineForm(request.POST)
 
         if user_form.is_valid() and profile_form.is_valid() and password_form.is_valid():
@@ -462,7 +467,7 @@ def edit_user_profile(request):
                     })
 
             messages.success(request, "Dane profilu zostały zapisane.")
-            return redirect('match')
+            return redirect('typerek:match')
 
     else:
         user_form = UserForm(instance=user)
@@ -474,3 +479,49 @@ def edit_user_profile(request):
         'profile_form': profile_form,
         'password_form': password_form,
     })
+
+@login_required
+def display_user(request, username):
+    user = get_object_or_404(User, username=username)
+    user_profile = get_object_or_404(UserProfile, user=user)
+
+    # Wszystkie ligi, do których użytkownik jest przypisany
+    user_leagues = UsersLeagues.objects.select_related('league').filter(user=user)
+
+    leagues_data = []
+
+    for ul in user_leagues:
+        league = ul.league
+
+        # Obstawione mecze w tej lidze (status 1 lub 2)
+        bets = Bets.objects.filter(
+            user=user,
+            match_id__league=league,
+            status__in=[1, 2]
+        )
+
+        bets_points = bets.aggregate(Sum('total'))['total__sum'] or 0
+
+        # Odpowiedzi w tej lidze (status 1 lub 2)
+        answers = Answers.objects.filter(
+            user=user,
+            question_id__league=league,
+            status__in=[1, 2]
+        )
+
+        answers_points = answers.aggregate(Sum('p_answer'))['p_answer__sum'] or 0
+
+        league_info = {
+            'name': league.name,
+            'status': league.status,
+            'bets_count': bets.count(),
+            'bets_points': bets_points,
+            'answers_count': answers.count(),
+            'answers_points': answers_points,
+            'total_points': bets_points + answers_points
+        }
+
+        leagues_data.append(league_info)
+
+    return render(request, 'typerekv3/display_user.html', {'user': user, 'user_profile': user_profile, 'leagues_data': leagues_data })
+

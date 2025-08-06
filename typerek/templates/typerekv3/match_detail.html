@@ -5,17 +5,23 @@
 {% block content %}
 
           <div class="row">
-            <div class="col-md-12 grid-margin">
+            <div class="col-md-8 grid-margin">
               <div class="row">
-                <div class="col-12 col-xl-8 mb-4 mb-xl-0">
-                  <h3 class="font-weight-bold">{{match.team_home_name}} - {{match.team_away_name}} <a class="text-primary" href="{% url 'league' lg=lg %}">[{{lg}}]</a> </h3>
+                <div class="col-10 col-xl-8 mb-4 mb-xl-0">
+                  <h3 class="font-weight-bold">{{match.team_home_name}} - {{match.team_away_name}} <a class="text-primary" href="{% url 'typerek:league' lg=lg %}">[{{lg}}]</a> </h3>
                   <h6 class="font-weight-normal mb-0">{{ match.date }}.  <span class="text-primary"> {% if match.multiplier > 1 %} Mnożymy punkty razy {{match.multiplier}}! {% else %} {% endif %} </span></h6>
 				  <h6 class="font-weight-normal mb-0">Status:  <span class="text-primary"> {% if bet.status == 2 %} Przeliczony {% elif bet.status == 1 %} Obstawiony {% else %} Do obstawienia {% endif %} </span></h6>
                 </div>
               </div>
             </div>
+
+              <div class="col-md-4 grid-margin">
+              <div class="row">
+                   <button type="button" class="btn btn-outline-primary btn-fw">Wykorzystane pewniaczki w lidze: {{used_jokers}} / {{max_jokers}}</button>
+              </div>
+            </div>
           </div>
-			
+
 			<div class="row">
             <div class="col-md-4 stretch-card grid-margin">
 			  <div class="card">

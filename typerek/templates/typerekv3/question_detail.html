@@ -8,7 +8,7 @@
             <div class="col-md-12 grid-margin">
               <div class="row">
                 <div class="col-12 col-xl-8 mb-4 mb-xl-0">
-                  <h3 class="font-weight-bold"> {{question.question}} <a class="text-primary" href="{% url 'league' lg=lg %}">[{{lg}}]</a> </h3>
+                  <h3 class="font-weight-bold"> {{question.question}} <a class="text-primary" href="{% url 'typerek:league' lg=lg %}">[{{lg}}]</a> </h3>
                   <h6 class="font-weight-normal mb-0"> {{question.date}} </h6>
 				  <h6 class="font-weight-normal mb-0">Status:  <span class="text-primary"> {% if answer.status == 2 %} Przeliczony {% elif answer.status == 1 %} Obstawiony {% else %} Do obstawienia {% endif %} </span></h6>
                 </div>

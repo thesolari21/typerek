@@ -12,6 +12,20 @@
   .table-striped tbody tr:nth-of-type(even) {
     background-color: #d0e2ff; /* kolor 2 */
   }
+
+    /* Sticky kolumna */
+   th.sticky-col,
+   td.sticky-col {
+    position: sticky;
+    left: 0;
+    background-color: inherit;
+    z-index: 2;
+  }
+
+  /* Wyższy z-index dla nagłówka */
+  th.sticky-col {
+    z-index: 3;
+  }
 </style>
 
          <div class="row">
@@ -35,7 +49,7 @@
                         <table id="results" class=" expandable-table table-striped" style="width:100%">
                           <thead>
                             <tr>
-                              <th style="position: sticky; left: 0;  z-index: 2; ">Gracz</th>
+                              <th class="sticky-col">Gracz</th>
                               <th>Przeliczone mecze</th>
                               <th>Trafiony wynik!</th>
                               <th>[Suma] Punkty za mecze</th>
@@ -48,7 +62,7 @@
 					{% for player in league_data %}
 
     <tr>
-           <td>{{player.user__username}}</td>
+           <td class="sticky-col"><a href="{% url 'typerek:display_user' username=player.user__username %}">{{player.user__username}}</a></td>
            <td>{{player.count_result}}</td>
            <td>{{player.sum_excellent}}</td>
            <td>{{player.sum_total}}</td>
@@ -90,7 +104,7 @@
 					  
 					  {% for match in matches_overall %}
                         <tr>
-                          <td style="position: sticky; left: 0;  z-index: 1; background: white;"><a href="{% url 'match_detail' pk=match.match_id lg=lg %}"><p class="pl-0" >{{match.match_id__team_home_name}} - {{match.match_id__team_away_name}}</a></p></td>
+                          <td style="position: sticky; left: 0;  z-index: 1; background: white;"><a href="{% url 'typerek:match_detail' pk=match.match_id lg=lg %}"><p class="pl-0" >{{match.match_id__team_home_name}} - {{match.match_id__team_away_name}}</a></p></td>
                           <td class="text-muted">{% if match.match_id__team_home_score == None or match.match_id__team_away_score == None %} - {% else %} {{match.match_id__team_home_score}} - {{match.match_id__team_away_score}} {% endif %}</td>
 						  <td class="text-muted">{% if match.team_home_score == None or match.team_away_score == None %} - {% else %} {{match.team_home_score}} - {{match.team_away_score}} {% endif %}</td>
 						  <td class="text-muted"><span class="font-weight-bold mr-2">{% if match.joker == 1 %} Tak {% else %} Nie {% endif %} </span></td>
@@ -124,7 +138,7 @@
 					  
 					  {% for quest in questions_overall %}
                         <tr>
-                          <td style="position: sticky; left: 0;  z-index: 1; background: white;"><p class="pl-0"><a href="{% url 'question_detail' pk=quest.question_id lg=lg %}">{{quest.question_id__question}}</a></p></td>
+                          <td style="position: sticky; left: 0;  z-index: 1; background: white;"><p class="pl-0"><a href="{% url 'typerek:question_detail' pk=quest.question_id lg=lg %}">{{quest.question_id__question}}</a></p></td>
                           <td class="text-muted">{% if quest.question_id__answer == None %} - {% else %} {{quest.question_id__answer}} {% endif %}</td>
 						  <td class="text-muted">{% if quest.answer == None %} - {% else %} {{quest.answer}} {% endif %}</td>
 						  <td class="text-muted"><span class="font-weight-bold mr-2">{{quest.p_answer}}</span></td>
