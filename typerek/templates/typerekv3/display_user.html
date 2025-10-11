@@ -88,18 +88,21 @@
                           <th>Punkty mecze</th>
                             <th>Punkty pytania</th>
                             <th>Suma punktów</th>
+                            <th>Pozycja</th>
                         </tr>
                       </thead>
                       <tbody>
 
                       {% for league in leagues_data %}  <tr>
-                          <td>{{ league.name }}</td>
+
+                          <td><a class="text-primary" href="{% url 'typerek:league' lg=league.name %}">{{ league.name }}</a></td>
                           {% if league.status == 1 %} <td><label class="badge badge-success">Aktywna</label></td>
                           {% elif league.status == 2 %} <td><label class="badge badge-danger">Archiwalna</label></td>
                           {% else %} <td><label class="badge badge-warning">Draft</label></td>  {% endif %}
                           <td class="table text-center">{{ league.bets_points }}</td>
                           <td class="table text-center">{{ league.answers_points }}</td>
                           <td class="table text-center">{{ league.total_points }}</td>
+                          <td class="table text-center">{{ league.position }}</td>
 
                         </tr>
                       {% endfor %}

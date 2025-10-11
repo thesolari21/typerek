@@ -33,6 +33,11 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['127.0.0.1', '.pythonanywhere.com']
 
+CSRF_TRUSTED_ORIGINS = [
+    'https://jjbg.pythonanywhere.com',
+    'http://127.0.0.1:8000',
+]
+
 
 # Application definition
 

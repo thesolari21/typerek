@@ -11,16 +11,16 @@
 ## General info
 [PL]
 
-Aplikacja w Django służąca do obstawiania wyników meczy piłkarskich. Pomysł zrodził się z racji braku aplikacji, która w prosty sposób pozwalałaby na wspólną zabawę w typowanie wyników. 
+Typerek to aplikacja napisana w Django. Dzięki niej możesz rywalizować z znajomymi w obstawianiu meczy. 
 
 W skrócie:
 * Administrator dodaje ligi, mecze oraz relacje user-liga.
-* Uczestnicy logując się na swoje konta widzą dostępne ligi oraz w ich ramach - mecze.
+* Uczestnicy logując się na swoje konta widzą dostępne dla siebie ligi oraz w ich ramach - mecze / pytania do ligi.
 * Każdy mecz posiada informacje o dacie, drużynach oraz mnożniku punktów.
-* Każdy gracz obstawia wyniki klikając w dane spotkanie.
+* W danym meczu gracz obstawia dokładny wynik oraz extra-bet.
 * Po zakończeniu spotkania, admin uzupełnia wyniki.
 * W zależności od konfiguracji następuje automatyczne przeliczenie punktów lub ręczne urucuhomienie skryptu przeliczającego przez administratora.
-* Punkty można zdobyć za poprawne wytypowanie bramek danej drużyny, ich sumy, zwycięzcy oraz zakładu specjalnego.
+* Punkty można zdobyć za poprawne wytypowanie bramek danej drużyny, ich różnicy, zwycięzcy oraz zakładu specjalnego (extra bet).
 * Spotkania o dużej wadze mogą być ustawione przez administratora z mnożnikiem większym niż 1, np x2 , x3.
 * Każdy gracz może również skorzytac z 'pewniaczka' który w przypadku poprawnego obstawienia daje kolejne extra punkty (lub odejmuje przy błędzie)
 * Każdy gracz ma dostep do szczegółowych wyników, statystyk oraz klasyfikacji.
@@ -28,50 +28,51 @@ W skrócie:
 
 [EN]
 
-An application in Django designed for betting on the outcomes of football matches. The idea emerged due to the lack of an application that would allow for easy and collaborative prediction of match results.
+Typerek is a web app built with Django that lets you compete with friends by predicting match results.
 
-In summary:
+In short:
 
-* The administrator adds leagues, matches, and user-league relationships.
-* Participants, upon logging into their accounts, can see available leagues and matches within those leagues.
-* Each match includes information about the date, teams, and point multiplier.
-* Each player predicts match outcomes by clicking on a specific match.
-* After the match is concluded, the admin fills in the results.
-* Depending on the configuration, automatic point calculation occurs or the admin manually triggers a script for calculation.
-* Points can be earned for correctly predicting goals for a specific team, their sum, the winner, and a special bet.
-* Matches of greater importance can be set by the administrator with a higher multiplier, e.g., x2, x3.
-* Each player can also use a 'sure bet,' which, when predicted correctly, provides additional points (or deducts points for an error).
-* Every player has access to detailed results, statistics, and rankings.
-* Point scoring configuration is available from the administrator's interface.
+* The admin creates leagues, matches, and assigns users to leagues.
+* Players log in to see the leagues they belong to, along with the matches and league questions.
+* Each match has a date, teams, and a points multiplier.
+* Players predict the exact score and place an extra bet for each match.
+* After the match, the admin enters the real results.
+* Points are then calculated automatically or manually by the admin, depending on the settings.
+* You can earn points for guessing the correct score, goal difference, winner, or the extra bet.
+* Important matches can have higher multipliers, like x2 or x3.
+* Players can also use a “sure bet” for a chance to get bonus points if correct (or lose points if wrong).
+* Everyone can view detailed results, stats, and rankings.
+* The scoring system can be fully configured by the admin.
 	
 ## Screens
 
 Main
 
-![](https://i.ibb.co/wY8nqT2/main.png)
+![](https://i.ibb.co/39DK8Bcs/main.png)
 
 Match detail
 
-![](https://i.ibb.co/Bqmb2M3/match-detail.png)
+![](https://i.ibb.co/2Y6qZ3yG/match-detail.png)
 
 League
 
-![](https://i.ibb.co/Y3s9HRY/league.png)
+![](https://i.ibb.co/Cpqh2s3C/league.png)
 
-Rules
+Edit match
 
-![](https://i.ibb.co/Q6VqjB7/rules.png)
+![](https://i.ibb.co/0jNHHyxd/edit-match.png)
 
 ## To Do
-* Dodanie obsługi pytań otwartych / z listy wg innej punktacji (np. Kto wygra MŚ? [Anglia/Polska/Francja/Niemncy] 50 pkt)
-* Automatyczne uzupełnianie wyników meczy (np. z livescore)
-* Dodanie statystyk oraz szczegółowych informacji o userze
-* Dodanie większej personalizacji (motywy kolorystyczne) dla danej ligi
-* Reset hasła z poziomu usera
+* Automartyczne uzupełnianie wyników
+* Dodatkowy gracz w lidze oparty na SI + punkty za pokonanie SI
+* Wprowadzenie pojedynków
+* Tutorial na YT
+* Forum/chat
 	
 ## Specs
-* Aktualnie przeliczanie za pomocą skryptu w pliku xcalc.py (sonfiguruj dostęp do DB)
-* Przed uruchomieniem aplikacji uzupełnij w tabeli CONF punktację, wymagane rekordy:
+* Przeliczanie punktów za pomocą skryptu w pliku: xcalc.py
+* Wysyłka maili z nieobstawionymi meczami za pomocą skryptu w pliku: xnotbet.py
+* Przed uruchomieniem aplikacji uzupełnij w tabeli CONF punktację. Wymagane rekordy:
   * max_jokers
   * p_home_score
   * p_away_score
@@ -83,19 +84,26 @@ Rules
 * Tabela League, pole Status:
   * 0 - nieaktywne
   * 1 - aktywne (wyświetli ligę userowi)
+  * 2 - archiwalna (wyświetl ligę userowi, ale nie uwzgledniaj w pokazywaniu na main i powiadomieniach)
 * Tabela Matches, Questions, pole Status:
-  * 0 - otwarty (pokaże się na liście meczów, mecz nie zostanie uwzględniony przy przeliczaniu punktów)
-  * 1 - zakończony  (pokaże się na liście meczów, mecz zostanie uwzględniony przy pzeliczani punktów)
+  * 0 - otwarty (pokaże się na liście meczów, mecz NIE zostanie uwzględniony przy przeliczaniu punktów)
+  * 1 - zakończony  (pokaże się na liście meczów, mecz zostanie uwzględniony przy przeliczaniu punktów)
 * Tabela Bets, Answers pole Status:
   * 0 - user wszedł w dany mecz, ale nie obstawił
   * 1 - user obstawił mecz
   * 2 - skrypt przeliczył punkty dla danego obstawienia
+* Tabela Articles, pole Status:
+  * 0 - nieaktywny (nie pokazuj)
+  * 1 - aktywny (pokazuj)
+* Panel redaktora: dostęp tylko osoby z grupą "redaktor"
 * Tabela UserLeagues - należy utworzyć relację aby były widoczne dla użytkownika mecze danej ligi
-* Obstawianie możliwe 2h przed rozpoczęciem meczu
-* W main user widzi wszystkie mecze >= TODAY()
+
+## Instalacja
+Wkrótce...
+
 
 ## Status
-Produkcja
+Prod
 
 ## Changelog
 # 1.0
@@ -117,3 +125,16 @@ Produkcja
 
 # 2.1
 * reset hasła by email
+
+# 3.0
+* Naprawa błędu polegającego na możliwości zmiany typu po rozpoczęciu meczu
+* Poprawka klasyfikacji generalnej aby od razu było sortowanie po sumie punktów malejąco
+* Wyświetlanie ile wolnych/wykorzystanych pewniaczków ma user w danej lidze
+* Dodany moduł redaktora
+* Nowy, ładniejszy, responsywny layout
+* Dodanie modułu Aktualności
+* Zmiana zasad punktowania (z sumy bramek na różnicę bramek)
+* Sylwetki typujących
+* Informacja o pozycji zajętej/zajmowanej w danej lidze w tabeli przy sylwetce typującego
+* Automatyczny mail do graczy z nieobstawionymi meczami
+* Poprawka masy mniejszych błędów

@@ -15,7 +15,8 @@ from .forms import BetForm, AnswerForm, ArticleForm, MatchForm, QuestionForm, Ru
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect
 from django.contrib import auth
-from django.db.models import Sum, OuterRef, Count, Case, When,Value, IntegerField
+from django.db.models import Subquery, Sum, OuterRef, Count, Case, When,Value, IntegerField, F, Q, Window
+from django.db.models.functions import Coalesce, Rank
 from datetime import datetime, time
 from django.utils.timezone import localtime, make_aware
 from zoneinfo import ZoneInfo
@@ -23,6 +24,7 @@ from django.contrib.auth import update_session_auth_hash
 from django.contrib import messages
 import markdown
 from bs4 import BeautifulSoup
+from django.views.decorators.cache import never_cache
 
 # pomocnicza funkcja oczyszczania z markdown
 def markdown_to_text(md_text):
@@ -41,14 +43,14 @@ def login_page(request):
             else:
                 return redirect('typerek:match')
         else:
-            context['error'] = 'Podane hasło lub login są błędne! Podaj poprawne dane.'
+            context['error'] = 'Podane hasĹ‚o lub login sÄ… bĹ‚Ä™dne! Podaj poprawne dane.'
             if request.POST.get('redir'):
-                context['next'] = 'Tylko zalogowani użytkonicy mają dostęp do tej strony! Zaloguj się.'
+                context['next'] = 'Tylko zalogowani uĹĽytkonicy majÄ… dostÄ™p do tej strony! Zaloguj siÄ™.'
                 context['nextURL'] = request.GET.get('next')
             return render(request, 'typerekv3/login.html', context)
     else:
         if request.GET.get('next'):
-            context['next'] = 'Tylko zalogowani użytkonicy mają dostęp do tej strony! Zaloguj się.'
+            context['next'] = 'Tylko zalogowani uĹĽytkonicy majÄ… dostÄ™p do tej strony! Zaloguj siÄ™.'
             context['nextURL'] = request.GET.get('next')
         return render(request, 'typerekv3/login.html', context)
 
@@ -93,6 +95,7 @@ def edit_rules(request):
 
 
 #strona glowna, tylko mecze z lig do ktorych przypisany jest user
+@never_cache
 def match(request):
     leagues = League.objects.all
 
@@ -102,12 +105,13 @@ def match(request):
         user = 0
         usersleagues = UsersLeagues.objects.all().filter(user=user)
 
-    # pobierz aktulną datę, dalej pokaz tylko mecze z datą >= dziś
-    today_start = make_aware(datetime.combine(datetime.now().date(), time.min))
+    poland_timezone = ZoneInfo("Europe/Warsaw")
+    current_time_in_poland = datetime.now(poland_timezone)
 
+    # aktywne mecze, mozliwe do obstawienia
     matches = Matches.objects.select_related('league').prefetch_related('bets_set').filter(
         league__in=usersleagues.values('league')
-    ).filter(date__gte=today_start).order_by('date')
+    ).filter(date__gte=current_time_in_poland).order_by('date')
 
     count_not_bet = 0
     # dodaj info o statusie obstawienia danego meczu przez gracza, od razu tez policz te nieobstawione
@@ -122,10 +126,28 @@ def match(request):
         if match.status == 0 or match.status is None:
             count_not_bet += 1
 
+    # spotkanie niemozliwe juz do obstawienia (uplynal czas), ostatnie 3
+    matches_ended = (
+        Matches.objects.select_related('league')
+        .prefetch_related('bets_set')
+        .filter(league__in=usersleagues.values('league'))
+        .filter(date__lt=current_time_in_poland)
+        .order_by('-date')[:3]
+    )
+
+    for match in matches_ended:
+        try:
+            bet = Bets.objects.get(match_id=match, user=request.user)
+            match.status = bet.status
+
+        except Bets.DoesNotExist:
+            match.status = None
+
+
     # to samo dla pytan do ligi
     questions = Questions.objects.select_related('league').prefetch_related('answers_set').filter(
         league__in=usersleagues.values('league')
-    ).filter(date__gte=today_start).order_by('date')
+    ).filter(date__gte=current_time_in_poland).order_by('date')
 
     for question in questions:
         try:
@@ -134,7 +156,7 @@ def match(request):
         except Answers.DoesNotExist:
             question.status = None
 
-    # pobierz ostatnie 3 artykuły (lub mniej), wyczysc formatowanie markdown
+    # pobierz ostatnie 3 artykuĹ‚y (lub mniej), wyczysc formatowanie markdown
     articles = list(Articles.objects.filter(status=1).order_by('-update_date')[:3])
 
     for article in articles:
@@ -143,14 +165,14 @@ def match(request):
 
 
 
-    return render(request, 'typerekv3/index.html', {'leagues':leagues, 'matches':matches, 'questions':questions, 'articles':articles, 'count_not_bet':count_not_bet})
+    return render(request, 'typerekv3/index.html', {'leagues':leagues, 'matches':matches, 'matches_ended':matches_ended, 'questions':questions, 'articles':articles, 'count_not_bet':count_not_bet})
 
 # uzupelnianie swojego typu
 @login_required
 def match_detail(request, pk, lg):
     match = get_object_or_404(Matches, pk=pk)
 
-    # jeśli nie istnieje jeszcze typ dla danego meczu, utwórz go (pusty) w momencie wejscia
+    # jeĹ›li nie istnieje jeszcze typ dla danego meczu, utwĂłrz go (pusty) w momencie wejscia
     try:
         bet = Bets.objects.get(match_id=pk, user=request.user.id)
     except Bets.DoesNotExist:
@@ -159,25 +181,29 @@ def match_detail(request, pk, lg):
 
     league_id = League.objects.get(name=lg)
 
+    # PorĂłwnaj date/godzine meczu z aktualna data/godzina w Polsce
+    poland_timezone = ZoneInfo("Europe/Warsaw")
+    current_time_in_poland = datetime.now(poland_timezone)
+
+    if localtime(match.date) > current_time_in_poland:
+        can_bet = True
+    else:
+        can_bet = False
+
     if request.method == "POST":
+        if not can_bet:
+            return redirect("typerek:match_detail", pk=pk, lg=lg)
 
         form = BetForm(request.POST, instance=bet, initial={'user': request.user.id, 'league': league_id})
 
         if form.is_valid():
             bet = form.save(commit=False)
             bet.status = 1
+            bet.last_updated = datetime.now(poland_timezone)
             bet.save()
     else:
         form = BetForm( instance=bet, initial={'user': request.user.id, 'league': league_id })
 
-    poland_timezone = ZoneInfo("Europe/Warsaw")
-    current_time_in_poland = datetime.now(poland_timezone)
-
-    # Porównaj date/godzine meczu z aktualna data/godzina w Polsce
-    if  localtime(match.date) > current_time_in_poland:
-        can_bet = True
-    else:
-        can_bet = False
 
     # Pobierz typy wszystkich graczy (uwzglednij obstawione i przeliczone)
     bet_all_users = Bets.objects.filter(match_id=pk, status__in=[1,2])
@@ -193,7 +219,7 @@ def match_detail(request, pk, lg):
 def question_detail(request, pk, lg):
     question = get_object_or_404(Questions, pk=pk)
 
-    #tak samo jak w match_detail: utwórz pusty typ kiedy jeszcze nie ma
+    #tak samo jak w match_detail: utwĂłrz pusty typ kiedy jeszcze nie ma
     try:
         answer = Answers.objects.get(question_id=pk, user=request.user.id)
     except Answers.DoesNotExist:
@@ -202,25 +228,29 @@ def question_detail(request, pk, lg):
 
     league_id = League.objects.get(name=lg)
 
+    # PorĂłwnaj date/godzine meczu z aktualna data/godzina w Polsce
+    poland_timezone = ZoneInfo("Europe/Warsaw")
+    current_time_in_poland = datetime.now(poland_timezone)
+
+    if localtime(question.date) > current_time_in_poland:
+        can_bet = True
+    else:
+        can_bet = False
+
     if request.method == "POST":
+        if not can_bet:
+            return redirect("typerek:question_detail", pk=pk, lg=lg)
 
         form = AnswerForm(request.POST, instance=answer, initial={'user': request.user.id, 'league': league_id})
 
         if form.is_valid():
             answer = form.save(commit=False)
             answer.status = 1
+            answer.last_updated = datetime.now(poland_timezone)
             answer.save()
     else:
         form = AnswerForm(instance=answer, initial={'user': request.user.id, 'league': league_id })
 
-    poland_timezone = ZoneInfo("Europe/Warsaw")
-    current_time_in_poland = datetime.now(poland_timezone)
-
-    # Porównaj date/godzine meczu z aktualna data/godzina w Polsce
-    if localtime(question.date) > current_time_in_poland:
-        can_bet = True
-    else:
-        can_bet = False
 
     # Pobierz typy wszystkich graczy (uwzglednij obstawione i przeliczone)
     bet_all_users = Answers.objects.filter(question_id=pk, status__in=[1, 2])
@@ -232,7 +262,7 @@ def league(request, lg):
 
     matches = Matches.objects.select_related('league').filter(league__name=lg).values('id')
 
-    # Klasyfikacja generalna meczy, uwzględnij tylko przeliczone
+    # Klasyfikacja generalna meczy, uwzglÄ™dnij tylko przeliczone
     league_overall = Bets.objects.select_related('user').values('user__username').filter(match_id__in=matches.values('pk'),status__in=[2]).annotate(
                                                           sum_sum_goals=Sum('p_sum_goals') + Sum('p_away_score') + Sum('p_home_score') ,
                                                           sum_result=Sum('p_result'),
@@ -255,10 +285,10 @@ def league(request, lg):
                                                           sum_answer=Sum('p_answer'),
     )
 
-    # Teraz przekształć odpowiedzi z pytan do slownika
+    # Teraz przeksztaĹ‚Ä‡ odpowiedzi z pytan do slownika
     answers_dict = {entry['user__username']: entry['sum_answer'] for entry in league_overall_answers}
 
-    # A teraz połącz dane, split_data zawiera dane z pytan o meczyk + punkty z odpowiedzi na pytania + sume punktow z obu kategorii
+    # A teraz poĹ‚Ä…cz dane, split_data zawiera dane z pytan o meczyk + punkty z odpowiedzi na pytania + sume punktow z obu kategorii
     split_data = []
     for player in league_overall:
         username = player['user__username']
@@ -318,10 +348,10 @@ def articles(request):
     # pobierz parametr z adresu URL
     category_name = request.GET.get('category')
 
-    # pobierz aktywne artykuły
+    # pobierz aktywne artykuĹ‚y
     articles = Articles.objects.filter(status=1).order_by('-update_date')
 
-    # jeżeli parametr nie jest None, pofiltruj liste artykułów wg podanej kategorii w parametrze
+    # jeĹĽeli parametr nie jest None, pofiltruj liste artykuĹ‚Ăłw wg podanej kategorii w parametrze
     if category_name:
         articles = articles.filter(category__category=category_name)
 
@@ -356,8 +386,8 @@ def add_article(request):
         form = ArticleForm(request.POST)
         if form.is_valid():
             article = form.save(commit=False)
-            article.author = request.user  # jeśli masz pole author
-            article.status = 1  # np. aktywny artykuł
+            article.author = request.user  # jeĹ›li masz pole author
+            article.status = 1  # np. aktywny artykuĹ‚
             article.save()
             return redirect('typerek:articles')
     else:
@@ -437,7 +467,7 @@ def add_question(request):
 def edit_user_profile(request):
     user = request.user
 
-    # Upewniamy się, że profil istnieje (tworzymy go jeśli nie)
+    # Upewniamy siÄ™, ĹĽe profil istnieje (tworzymy go jeĹ›li nie)
     profile, created = UserProfile.objects.get_or_create(user=user)
 
     if request.method == 'POST':
@@ -449,24 +479,24 @@ def edit_user_profile(request):
             user_form.save()
             profile_form.save()
 
-            # zmiana hasła, jeśli podano
+            # zmiana hasĹ‚a, jeĹ›li podano
             new_password = password_form.cleaned_data.get('new_password1')
             old_password = password_form.cleaned_data.get('old_password')
             if new_password:
                 if user.check_password(old_password):
                     user.set_password(new_password)
                     user.save()
-                    update_session_auth_hash(request, user)  # NIE wylogowuje po zmianie hasła
-                    messages.success(request, "Hasło zostało zmienione.")
+                    update_session_auth_hash(request, user)  # NIE wylogowuje po zmianie hasĹ‚a
+                    messages.success(request, "HasĹ‚o zostaĹ‚o zmienione.")
                 else:
-                    password_form.add_error('old_password', 'Nieprawidłowe stare hasło')
+                    password_form.add_error('old_password', 'NieprawidĹ‚owe stare hasĹ‚o')
                     return render(request, 'typerekv3/edit_user_profile.html', {
                         'user_form': user_form,
                         'profile_form': profile_form,
                         'password_form': password_form
                     })
 
-            messages.success(request, "Dane profilu zostały zapisane.")
+            messages.success(request, "Dane profilu zostaĹ‚y zapisane.")
             return redirect('typerek:match')
 
     else:
@@ -480,48 +510,71 @@ def edit_user_profile(request):
         'password_form': password_form,
     })
 
+
 @login_required
 def display_user(request, username):
     user = get_object_or_404(User, username=username)
     user_profile = get_object_or_404(UserProfile, user=user)
 
-    # Wszystkie ligi, do których użytkownik jest przypisany
     user_leagues = UsersLeagues.objects.select_related('league').filter(user=user)
-
     leagues_data = []
 
     for ul in user_leagues:
         league = ul.league
 
-        # Obstawione mecze w tej lidze (status 1 lub 2)
-        bets = Bets.objects.filter(
-            user=user,
-            match_id__league=league,
-            status__in=[1, 2]
-        )
+        # Ranking wszystkich uĹĽytkownikĂłw w tej lidze
+        league_users = UsersLeagues.objects.filter(league=league).select_related('user')
 
-        bets_points = bets.aggregate(Sum('total'))['total__sum'] or 0
+        ranking_list = []
+        for lu in league_users:
+            u = lu.user
+            bets_points = Bets.objects.filter(
+                user=u,
+                match_id__league=league,
+                status=2
+            ).aggregate(points=Coalesce(Sum('total'), 0))['points']
 
-        # Odpowiedzi w tej lidze (status 1 lub 2)
-        answers = Answers.objects.filter(
-            user=user,
-            question_id__league=league,
-            status__in=[1, 2]
-        )
+            answers_points = Answers.objects.filter(
+                user=u,
+                question_id__league=league,
+                status=2
+            ).aggregate(points=Coalesce(Sum('p_answer'), 0))['points']
 
-        answers_points = answers.aggregate(Sum('p_answer'))['p_answer__sum'] or 0
+            total_points = bets_points + answers_points
+            ranking_list.append({
+                'user': u,
+                'bets_points': bets_points,
+                'answers_points': answers_points,
+                'total_points': total_points
+            })
+
+        # Sortujemy po total_points malejÄ…co i nadajemy pozycje
+        ranking_list.sort(key=lambda x: x['total_points'], reverse=True)
+        for idx, r in enumerate(ranking_list, start=1):
+            r['position'] = idx
+
+        # Pobieramy dane dla bieĹĽÄ…cego uĹĽytkownika
+        user_data = next(r for r in ranking_list if r['user'] == user)
+
+        bets_count = Bets.objects.filter(user=user, match_id__league=league, status=2).count()
+        answers_count = Answers.objects.filter(user=user, question_id__league=league, status=2).count()
 
         league_info = {
             'name': league.name,
             'status': league.status,
-            'bets_count': bets.count(),
-            'bets_points': bets_points,
-            'answers_count': answers.count(),
-            'answers_points': answers_points,
-            'total_points': bets_points + answers_points
+            'bets_count': bets_count,
+            'bets_points': user_data['bets_points'],
+            'answers_count': answers_count,
+            'answers_points': user_data['answers_points'],
+            'total_points': user_data['total_points'],
+            'position': user_data['position'],
+            'players_count': len(ranking_list)
         }
 
         leagues_data.append(league_info)
 
-    return render(request, 'typerekv3/display_user.html', {'user': user, 'user_profile': user_profile, 'leagues_data': leagues_data })
-
+    return render(request, 'typerekv3/display_user.html', {
+        'user': user,
+        'user_profile': user_profile,
+        'leagues_data': leagues_data
+    })

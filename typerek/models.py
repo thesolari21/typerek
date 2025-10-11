@@ -55,6 +55,7 @@ class Answers(models.Model):
     p_answer = models.IntegerField(null=True, blank=True , default=0)
     status = models.IntegerField(null=True, blank=True, default=0)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True)
+    last_updated = models.DateTimeField(null=True, blank=True)
 
     def __str__(self):
         return f"{self.question_id} "
@@ -74,6 +75,7 @@ class Bets(models.Model):
     total = models.IntegerField(null=True, blank=True , default=0)
     status = models.IntegerField(null=True, blank=True, default=0, help_text="0 - user wszedl w mecz,ale nie obstawił, 1 - user obstawił, 2 - skrypt przyliczył punkty")
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True)
+    last_updated = models.DateTimeField(null=True, blank=True)
 
     def __str__(self):
         return f"{self.match_id} "

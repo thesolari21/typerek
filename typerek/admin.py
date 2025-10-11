@@ -9,7 +9,7 @@ class MatchesAdmin(admin.ModelAdmin):
     list_filter = ( 'league', 'date', 'multiplier','status')
 
 class BetsAdmin(admin.ModelAdmin):
-    list_display = ('__str__', 'user', 'status')
+    list_display = ('__str__', 'user', 'status', 'last_updated')
     list_filter = ('user', 'status')
 
 class UserLeaguesAdmin(admin.ModelAdmin):
@@ -24,7 +24,7 @@ class QuestionsAdmin(admin.ModelAdmin):
     list_filter = ( 'league', 'status')
 
 class AnswersAdmin(admin.ModelAdmin):
-    list_display = ('__str__', 'user', 'status')
+    list_display = ('__str__', 'user', 'status', 'last_updated')
     list_filter = ('user', 'status')
 
 class CategoryArticlesAdmin(admin.ModelAdmin):

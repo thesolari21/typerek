@@ -46,6 +46,7 @@
               </div>
               <h4>Witaj nieznajomy!</h4>
               <h6 class="font-weight-light">Zaloguj się i pokaż wszystkim, że wiesz lepiej!</h6>
+
               <form method = "POST" class="pt-3">
 			  {% csrf_token %}
                 <div class="form-group">
@@ -54,6 +55,12 @@
                 <div class="form-group">
                   <input type="password" class="form-control form-control-lg" name="password" placeholder="Hasło">
                 </div>
+
+                 <!-- Obsługa przekierowania -->
+                 {% if nextURL %}
+                <input type="hidden" name="redir" value="{{ nextURL }}">
+                {% endif %}
+
                 <div class="mt-3">
                  <input class="btn btn-primary" type="submit" value="Zaloguj"> 
                 </div>
@@ -63,6 +70,7 @@
                 </div>
                 
               </form>
+
             </div>
           </div>
         </div>

@@ -79,8 +79,8 @@ update
 		when m.team_away_score = b.team_away_score then @p_away_score
 		else 0
 	END as 'calc_p_away_score',
-	CASE                            -- calculate points for sum goals
-		when (m.team_away_score + m.team_home_score)  = (b.team_away_score + b.team_home_score) then @p_sum_goals
+	CASE                            -- calculate points for DIFF goals, change after tests, name of variable non-changed 
+		when (CAST(m.team_away_score as signed) - CAST(m.team_home_score as signed))  = (CAST(b.team_away_score as signed) - CAST(b.team_home_score as signed)) then @p_sum_goals
 		else 0
 	END as 'calc_p_sum_goals',
 	CASE                            -- calculate point for result

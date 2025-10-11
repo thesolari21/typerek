@@ -15,7 +15,6 @@ myvenv/
 # Django
 db.sqlite3
 /staticfiles/
-typerek/static/
 media/
 *.log
 

@@ -1,4 +1,4 @@
-{% extends 'typerekv3/base.html' %}
+﻿{% extends 'typerekv3/base.html' %}
 {% load static %}
 
 
@@ -15,7 +15,7 @@
               </div>
             </div>
           </div>
-		 		  
+
         <div class="row">
             <div class="col-md-12 grid-margin stretch-card">
               <div class="card position-relative">
@@ -34,13 +34,13 @@
                               <p class="mb-2 mb-xl-0">
 							   {{ article.teaser }}
                               </p> </a>
-                            </div>  
+                            </div>
                             </div>
                           <div class="col-md-12 col-xl-3">
                             <div class="row">
                               <div class="col-md-6 mt-3">
                                 {% if article.image and article.image.url %}
-                                 <img src="{{ article.image.url }}" alt="aktualności" class="img-fluid">
+                                 <img src="{{ article.image.url }}" alt="aktualnoĹ›ci" class="img-fluid">
                                   {% else %}
                                 <img src="{% static 'typerekv3/images/dafault_image.jpg' %}" alt="brak obrazka" class="img-fluid">
                                   {% endif %}
@@ -65,88 +65,117 @@
               </div>
             </div>
           </div>
-		  
-		
+
+
 		  <div class="row">
             <div class="col-md-12 grid-margin stretch-card">
               <div class="card">
                 <div class="card-body">
+
+                <div class="mb-3 d-flex justify-content-end">
+                  <button id="toggleBrakTypu" class="btn btn-outline-primary">Pokaż tylko "Brak typu"</button>
+                </div>
+
                   <p class="card-title mb-0">Nadchodzące spotkania</p>
-				  
+
 				  <!-- tabelka na kompa -->
                   <div class="table-responsive d-none d-md-block">
-                    <table class="table table-striped table-borderless">
-                      <thead>
-                        <tr>
-                          <th>Data</th>
-                          <th>Mecz</th>
-                          <th>Liga</th>
-						  <th>Mnożnik</th>
-                          <th>Status</th>
-                        </tr>  
-                      </thead>
-                      <tbody>
-					  
-					  {% for match in matches %}
-                        <tr>
-                          <td>{{match.date}}</td>
-                          <td class="font-weight-bold"><a href="{% url 'typerek:match_detail' pk=match.pk lg=match.league %}">{{match}}</a></td>
-                          <td>{{match.league}}</td>
-						  <td>{{match.multiplier}}</td>
-						  {% if match.status == 1 %}
-                          <td class="font-weight-medium"><div class="badge badge-success">Obstawiony</div></td>
-                            {% elif match.status == 2%}
-                          <td class="font-weight-medium"><div class="badge badge-info">Przeliczony</div></td>
-						  {% else %}
-						  <td class="font-weight-medium"><div class="badge badge-warning">Brak typu</div></td>
-						  {% endif %}
-                        </tr>
-						{% endfor %}
-                        
-                      </tbody>
-                    </table>
-                  </div>
-				  
+                      <table class="table table-striped table-borderless">
+                        <thead>
+                          <tr>
+                            <th>Data</th>
+                            <th>Mecz</th>
+                            <th>Liga</th>
+                            <th>Mnożnik</th>
+                            <th>Status</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {% for match in matches %}
+                          <tr class="match-row {% if match.status == 0 or match.status is None %}brak-typu{% endif %}">
+                            <td>{{match.date}}</td>
+                            <td class="font-weight-bold">
+                              <a href="{% url 'typerek:match_detail' pk=match.pk lg=match.league %}">{{match}}</a>
+                            </td>
+                            <td>{{match.league}}</td>
+                            <td>{{match.multiplier}}</td>
+                            {% if match.status == 1 %}
+                            <td><div class="badge badge-success">Obstawiony</div></td>
+                            {% elif match.status == 2 %}
+                            <td><div class="badge badge-info">Przeliczony</div></td>
+                            {% else %}
+                            <td><div class="badge badge-warning">Brak typu</div></td>
+                            {% endif %}
+                          </tr>
+                          {% endfor %}
+                        </tbody>
+                      </table>
+                    </div>
+
 				  <!-- tabelka na kome -->
-				  <div class="d-block d-md-none">
+                    <div class="d-block d-md-none">
+                      {% for match in matches %}
+                      <a href="{% url 'typerek:match_detail' pk=match.pk lg=match.league %}" style="text-decoration: none; color: inherit;">
+                        <div class="card mb-2 p-2 match-card {% if match.status == 0 or match.status is None %}brak-typu{% endif %}">
+                          <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                              <strong>{{match}}</strong><br>
+                              {{match.date}}<br>
+                              {{match.league}}<br>
+                              Mnożnik: {{match.multiplier}}
+                            </div>
+                            <div>
+                              {% if match.status == 1  %}
+                              <span class="badge badge-success">Obstawiony</span>
+                                {% elif match.status == 2  %}
+                                 <span class="badge badge-info">Przeliczony</span>
+                              {% else %}
+                              <span class="badge badge-warning">Brak typu</span>
+                              {% endif %}
+                            </div>
+                          </div>
+                        </div>
+                      </a>
+                      {% endfor %}
+                    </div>
 
-					{% for match in matches %}
-				  <a href="{% url 'typerek:match_detail' pk=match.pk lg=match.league %}" style="text-decoration: none; color: inherit;">
-				  <div class="card mb-2 p-2">
-					<div class="d-flex justify-content-between align-items-center">
-					  <div>
-						<strong>{{match}}</strong><br>
-						{{match.date}}<br>
-						{{match.league}}<br>
-						Mnożnik: {{match.multiplier}}
-					  </div>
-					  <div>
-					  {% if match.status == 1 or match.status == 2%}
-						<span class="badge badge-success">Obstawiony</span>
-					{% else %}
-						<span class="badge badge-warning">Brak typu</span>
-					{% endif %}
-					  </div>
-					</div>
-				  </div></a>
-				  {% endfor %}
+                   <script>
+  const btn = document.getElementById("toggleBrakTypu");
+  let filterOn = false;
 
-				</div>
-				  
+  btn.addEventListener("click", () => {
+    const allMatches = document.querySelectorAll(".match-row, .match-card");
+    const brakTypu = document.querySelectorAll(".match-row.brak-typu, .match-card.brak-typu");
+
+    if (!filterOn) {
+      // pokaĹĽ tylko brak-typu
+      allMatches.forEach(el => el.style.display = "none");
+      brakTypu.forEach(el => el.style.display = "");
+      btn.textContent = "PokaĹĽ wszystkie";
+      filterOn = true;
+    } else {
+      // pokaĹĽ wszystkie
+      allMatches.forEach(el => el.style.display = "");
+      btn.textContent = "PokaĹĽ tylko â€žBrak typuâ€ť";
+      filterOn = false;
+    }
+  });
+</script>
+
                 </div>
               </div>
             </div>
-            
+
           </div>
-		 
-		  
+
+
 		 {% if questions %}
           <div class="row">
             <div class="col-md-12 grid-margin stretch-card">
               <div class="card">
                 <div class="card-body">
                   <p class="card-title mb-0">Pytania do ligi</p>
-				  
+
 				  <!-- tabelka na kompa -->
                   <div class="table-responsive d-none d-md-block">
                     <table class="table table-striped table-borderless">
@@ -156,31 +185,33 @@
                           <th>Pytanie</th>
                           <th>Liga</th>
 						  <th>Status</th>
-                        </tr>  
+                        </tr>
                       </thead>
                       <tbody>
-					  
+
 					  {% for question in questions %}
                         <tr>
                           <td>{{question.date}}</td>
                           <td class="font-weight-bold"><a href="{% url 'typerek:question_detail' pk=question.pk lg=question.league %}">{{question.question}}</a></td>
                           <td>{{question.league}}</td>
-						   {% if question.status == 1 or question.status == 2%}
+						   {% if question.status == 1 %}
                           <td class="font-weight-medium"><div class="badge badge-success">Obstawiony</div></td>
+                            {% elif question.status == 2 %}
+                            <td class="font-weight-medium"><div class="badge badge-info">Przeliczony</div></td>
 						  {% else %}
 						  <td class="font-weight-medium"><div class="badge badge-warning">Brak typu</div></td>
 						  {% endif %}
-						  
+
                         </tr>
 						{% endfor %}
-                        
+
                       </tbody>
                     </table>
                   </div>
-				  
+
 				  <!-- tabelka na kome -->
 				  <div class="d-block d-md-none">
-				  
+
 				  {% for question in questions %}
 				  <a href="{% url 'typerek:question_detail' pk=question.pk lg=question.league %}" style="text-decoration: none; color: inherit;">
 				  <div class="card mb-2 p-2">
@@ -191,8 +222,10 @@
 						{{question.league}}
 					  </div>
 					  <div>
-						{% if question.status == 1 or question.status == 2%}
+						{% if question.status == 1 %}
 						<span class="badge badge-success">Obstawiony</span>
+                          {% elif question.status == 2 %}
+                          <span class="badge badge-info">Przeliczony</span>
 						{% else %}
 						<span class="badge badge-warning">Brak typu</span>
 						{% endif %}
@@ -202,17 +235,91 @@
 				  {% endfor %}
 
 				</div>
-				  
+
                 </div>
               </div>
             </div>
-            
+
           </div>
 		   {% endif %}
-		   
-		  
-		  
+
+        <div class="row">
+            <div class="col-md-12 grid-margin stretch-card">
+              <div class="card">
+                <div class="card-body">
+                  <p class="card-title mb-0">Zakończone obstawianie (ostatnie 3 mecze)</p>
+
+				  <!-- tabelka na kompa -->
+                  <div class="table-responsive d-none d-md-block">
+                    <table class="table table-striped table-borderless">
+                      <thead>
+                        <tr>
+                          <th>Data</th>
+                          <th>Mecz</th>
+                          <th>Liga</th>
+						  <th>Mnożnik</th>
+                          <th>Status</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+
+					  {% for match in matches_ended %}
+                        <tr>
+                          <td>{{match.date}}</td>
+                          <td class="font-weight-bold"><a href="{% url 'typerek:match_detail' pk=match.pk lg=match.league %}">{{match}}</a></td>
+                          <td>{{match.league}}</td>
+						  <td>{{match.multiplier}}</td>
+						  {% if match.status == 1 %}
+                          <td class="font-weight-medium"><div class="badge badge-success">Obstawiony </div></td>
+                            {% elif match.status == 2%}
+                          <td class="font-weight-medium"><div class="badge badge-info">Przeliczony </div></td>
+						  {% else %}
+						  <td class="font-weight-medium"><div class="badge badge-warning">Brak typu </div></td>
+						  {% endif %}
+                        </tr>
+						{% endfor %}
+
+                      </tbody>
+                    </table>
+                  </div>
+
+				  <!-- tabelka na kome -->
+				  <div class="d-block d-md-none">
+
+					{% for match in matches_ended %}
+				  <a href="{% url 'typerek:match_detail' pk=match.pk lg=match.league %}" style="text-decoration: none; color: inherit;">
+				  <div class="card mb-2 p-2">
+					<div class="d-flex justify-content-between align-items-center">
+					  <div>
+						<strong>{{match}}</strong><br>
+						{{match.date}}<br>
+						{{match.league}}<br>
+						Mnożnik: {{match.multiplier}}
+					  </div>
+					  <div>
+					  {% if match.status == 1 %}
+						<span class="badge badge-success">Obstawiony </span>
+                           {% elif match.status == 2%}
+                        <span class="badge badge-info">Przeliczony </span>
+					{% else %}
+						<span class="badge badge-warning">Brak typu </span>
+					{% endif %}
+					  </div>
+					</div>
+				  </div></a>
+				  {% endfor %}
+
+				</div>
+
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+
+
 {% endblock %}
 
- 
+
 
