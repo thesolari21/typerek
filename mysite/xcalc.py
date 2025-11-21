@@ -29,7 +29,7 @@ def run_sql_statement(sql_statement):
                 for statement in statements:
                     if statement.strip():
                         cursor.execute(statement)
-                        print(i)
+                        print("Zapytanie SQL: " + str(i))
                         i = i+1
 
                 connection.commit()

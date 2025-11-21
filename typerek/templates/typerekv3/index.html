@@ -148,15 +148,15 @@
     const brakTypu = document.querySelectorAll(".match-row.brak-typu, .match-card.brak-typu");
 
     if (!filterOn) {
-      // pokaĹĽ tylko brak-typu
+      // pokaz wszystkie
       allMatches.forEach(el => el.style.display = "none");
       brakTypu.forEach(el => el.style.display = "");
-      btn.textContent = "PokaĹĽ wszystkie";
+      btn.textContent = "Pokaż wszystkie";
       filterOn = true;
     } else {
-      // pokaĹĽ wszystkie
+      // pokaz tylko brak typu
       allMatches.forEach(el => el.style.display = "");
-      btn.textContent = "PokaĹĽ tylko â€žBrak typuâ€ť";
+      btn.textContent = "Pokaż tylko Brak typu";
       filterOn = false;
     }
   });

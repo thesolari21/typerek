@@ -138,3 +138,8 @@ Prod
 * Informacja o pozycji zajętej/zajmowanej w danej lidze w tabeli przy sylwetce typującego
 * Automatyczny mail do graczy z nieobstawionymi meczami
 * Poprawka masy mniejszych błędów
+
+# 3.1
+* Poprawa literówek, drobnych błędów w: xcalc.py, xnotbet.py, index.html
+* Automatyczny mail do graczy z nowymi meczami w lidze do obstawienia
+* Dodanie w leagues kolumny z trafionym wynikiem

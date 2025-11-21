@@ -95,6 +95,7 @@
                           <th class="border-bottom pb-2" style="position: sticky; left: 0;  z-index: 2; background: white ">Mecz</th>
                           <th class="border-bottom pb-2">Wynik końcowy</th>
 						  <th class="border-bottom pb-2">Twój typ</th>
+                          <th class="border-bottom pb-2">Trafiony</th>
 						  <th class="border-bottom pb-2">Pewniaczek</th>
 						  <th class="border-bottom pb-2">Punkty</th>
 						  <th class="border-bottom pb-2">Status</th>
@@ -107,7 +108,8 @@
                           <td style="position: sticky; left: 0;  z-index: 1; background: white;"><a href="{% url 'typerek:match_detail' pk=match.match_id lg=lg %}"><p class="pl-0" >{{match.match_id__team_home_name}} - {{match.match_id__team_away_name}}</a></p></td>
                           <td class="text-muted">{% if match.match_id__team_home_score == None or match.match_id__team_away_score == None %} - {% else %} {{match.match_id__team_home_score}} - {{match.match_id__team_away_score}} {% endif %}</td>
 						  <td class="text-muted">{% if match.team_home_score == None or match.team_away_score == None %} - {% else %} {{match.team_home_score}} - {{match.team_away_score}} {% endif %}</td>
-						  <td class="text-muted"><span class="font-weight-bold mr-2">{% if match.joker == 1 %} Tak {% else %} Nie {% endif %} </span></td>
+                            <td class="text-muted">{% if match.team_home_score == match.match_id__team_home_score and match.team_away_score == match.match_id__team_away_score  %} TAK {% else %}  {% endif %}</td>
+                            <td class="text-muted"><span class="font-weight-bold mr-2">{% if match.joker == 1 %} Tak {% else %} Nie {% endif %} </span></td>
 						  <td class="text-muted"><span class="font-weight-bold mr-2">{{match.total}}</span></td>
 						  <td class="text-muted">{% if match.status == 2 %} Przeliczone {% else %} Obstawione {% endif %}</td>
                         </tr>

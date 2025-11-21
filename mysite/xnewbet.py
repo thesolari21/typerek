@@ -18,17 +18,17 @@ def send_email_to_player(to_email, player_name, matches):
         smtp_host = env('EMAIL_HOST')
         smtp_user = env('EMAIL_HOST_USER')
         smtp_pass = env('EMAIL_HOST_PASSWORD')
-        subject = f"Twoje nieobstawione mecze"
+        subject = f"Nowe mecze"
 
         # budujemy treść HTML maila
         html_content = f"<h2>Cześć {player_name}!</h2>"
-        html_content += "<p>Poniżej lista NIEOBSTAWIONYCH spotkań które niebawem się rozpoczną. Rusz się, bo potem znowu będziesz płakać, że zapomniałeś... </p><ul>"
+        html_content += "<p>Pojawiły się nowe spotkania do obstawienia. </p><ul>"
 
         for rec in matches:
             html_content += f"<li>{rec['mecz']} | {rec['data']}</li>"
 
         html_content += "</ul>"
-        html_content += "Wbijaj na <a href=\"https://jjbg.pythonanywhere.com/typerek\"> Typerka. </a><br><br><p>Nie pozdrawiam,<br>Typerek</p>"
+        html_content += "Wbijaj na <a href=\"https://jjbg.pythonanywhere.com/typerek\"> Typerka </a> i działaj!<br><br><p>Pozdrawiam,<br>Typerek</p>"
         msg = MIMEMultipart()
         msg['From'] = smtp_user
         msg['To'] = to_email
@@ -99,7 +99,8 @@ SELECT
     e.tb_id AS id_typu,
     e.tb_status AS status_typu,
     e.email AS email,
-    e.nottification_not_bet AS nott_brak_typu
+    e.nottification_not_bet AS nott_brak_typu,
+    e.created_at
 
 FROM (
     SELECT
@@ -113,7 +114,8 @@ FROM (
             c.id,
             c.`date`,
             c.team_home_name,
-            c.team_away_name
+            c.team_away_name,
+            c.created_at
             
         FROM (
             SELECT
@@ -145,7 +147,7 @@ FROM (
         INNER JOIN (
             SELECT *
             FROM typerek_matches tm
-            WHERE DATE(tm.`date`) = CURDATE()
+            WHERE tm.`created_at` >= NOW() - INTERVAL 24 HOUR
               AND status = 0
 
         ) c ON b.league_id = c.league_id

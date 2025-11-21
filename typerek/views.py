@@ -262,7 +262,7 @@ def league(request, lg):
 
     matches = Matches.objects.select_related('league').filter(league__name=lg).values('id')
 
-    # Klasyfikacja generalna meczy, uwzglÄ™dnij tylko przeliczone
+    # Klasyfikacja generalna meczy, uwzglednij tylko przeliczone
     league_overall = Bets.objects.select_related('user').values('user__username').filter(match_id__in=matches.values('pk'),status__in=[2]).annotate(
                                                           sum_sum_goals=Sum('p_sum_goals') + Sum('p_away_score') + Sum('p_home_score') ,
                                                           sum_result=Sum('p_result'),
@@ -288,7 +288,7 @@ def league(request, lg):
     # Teraz przeksztaĹ‚Ä‡ odpowiedzi z pytan do slownika
     answers_dict = {entry['user__username']: entry['sum_answer'] for entry in league_overall_answers}
 
-    # A teraz poĹ‚Ä…cz dane, split_data zawiera dane z pytan o meczyk + punkty z odpowiedzi na pytania + sume punktow z obu kategorii
+    # A teraz polacz dane, split_data zawiera dane z pytan o meczyk + punkty z odpowiedzi na pytania + sume punktow z obu kategorii
     split_data = []
     for player in league_overall:
         username = player['user__username']

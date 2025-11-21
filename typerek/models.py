@@ -34,6 +34,7 @@ class Matches(models.Model):
     extra_bet_name = models.CharField(max_length=100, null=True, blank=True , default= 'Ż. kartki w meczu'  )
     extra_bet_result = models.PositiveIntegerField(null=True, blank=True)
     status = models.IntegerField(null=True, blank=True, default=0, help_text="0 - Otwarty, 1 - Zakończony (uwzg. przy przel.)")
+    created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return f"{self.team_home_name} - {self.team_away_name}"
